@@ -38,7 +38,7 @@ library(cowplot)
 library(ggrepel)
 
 
-working_dir <- "~/Dropbox/transcrituto/"
+working_dir <- "~/Documents/transcriptutorial/" #put whatever is your working directory here
 setwd(working_dir)
 
 
@@ -65,6 +65,7 @@ dorothea <- dorothea[,c(1,2,5)]
 
 ### Import the raw count dataframe
 #downloaded from https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE119931
+#download the file : GSE119931_PANC1.FOXA2KO.genes.counts.txt.gz and decompress it in the data folder
 
 GSE119931_PANC1_FOXA2KO_genes_counts <- as.data.frame(
   read_delim("data/GSE119931_PANC1.FOXA2KO.genes.counts.txt", 
