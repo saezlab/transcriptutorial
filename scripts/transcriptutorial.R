@@ -243,7 +243,7 @@ names(Perturbation_carni_input) <- "FOXA2" #FOXA2 was knocked out so we define i
 result1 = runCARNIVAL(solverPath=solverPath, 
                       netObj = omnipath_sif, 
                       measObj = TF_carni_inputs, 
-                      inputObj = TF_carni_inputs, 
+                      inputObj = Perturbation_carni_input, 
                       weightObj = NULL, 
                       timelimit = 3600, 
                       poolCap = 100,
