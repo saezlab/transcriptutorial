@@ -36,6 +36,7 @@ library(gridExtra)
 library(grid)
 library(cowplot)
 library(ggrepel)
+library(hexbin)
 
 
 working_dir <- "~/Documents/transcriptutorial/" #put whatever is your working directory here
