@@ -202,4 +202,47 @@ scat_plots <- progenyScatter(df = t_table, weight_matrix = prog_matrix, statName
 #visualise MAPK responsive genes
 plot(scat_plots[[1]]$MAPK)
 
-### NEXT TIME WE DO CARNIVAL
+### NEXT WE DO CARNIVAL
+
+##Import and generate a causal network from OMNIPATH
+
+url <- paste0(
+  'http://omnipathdb.org/interactions?',
+  'fields=sources,references&genesymbols=1'
+)
+
+download_omnipath <- function(){
+  
+  read.table(url, sep = '\t', header = TRUE)
+  
+}
+
+omnipath <- download_omnipath()
+omnipath <- omnipath[omnipath$is_stimulation != 0 | omnipath$is_inhibition != 0,]
+omnipath_sif <- omnipath[omnipath$is_stimulation ==1,c(3,6,4)] #First we get the activation
+omnipath_sif_2 <- omnipath[omnipath$is_inhibition ==1,c(3,7,4)] #Then we get the inhibtion
+
+names(omnipath_sif) <- c("source","sign","target")
+names(omnipath_sif_2) <- c("source","sign","target")
+
+#Then we bind together activations and inhibtion to get the complete network
+omnipath_sif <- as.data.frame(rbind(omnipath_sif,omnipath_sif_2)) 
+
+#We define the end points that we are trying to reach in the network, from the initial perturbation
+TF_carni_inputs <- as.data.frame(t(TF_activity))
+
+#FOXA2 was knocked out so we define it as the initially perturbed node
+Perturbation_carni_input <- as.data.frame(matrix(-1,1,1))
+names(Perturbation_carni_input) <- "FOXA2" #FOXA2 was knocked out so we define it as the initially perturbed node
+
+result1 = runCARNIVAL(solverPath=solverPath, 
+                      netObj = omnipath_sif, 
+                      measObj = TF_carni_inputs, 
+                      inputObj = TF_carni_inputs, 
+                      weightObj = NULL, 
+                      timelimit = 3600, 
+                      poolCap = 100,
+                      poolReplace = 2, 
+                      limitPop = 500,
+                      DOTfig = TRUE, 
+                      solver = "cplex")
