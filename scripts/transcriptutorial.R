@@ -229,8 +229,12 @@ names(omnipath_sif_2) <- c("source","sign","target")
 #Then we bind together activations and inhibtion to get the complete network
 omnipath_sif <- as.data.frame(rbind(omnipath_sif,omnipath_sif_2)) 
 
+omnipath_sif$source <- gsub("[-+{},;() ]","___",omnipath_sif$source)
+omnipath_sif$target <- gsub("[-+{},;() ]","___",omnipath_sif$target)
+
 #We define the end points that we are trying to reach in the network, from the initial perturbation
 TF_carni_inputs <- as.data.frame(t(TF_activity))
+names(TF_carni_inputs) <- gsub("[-+{},;() ]","___",names(TF_carni_inputs))
 
 #FOXA2 was knocked out so we define it as the initially perturbed node
 Perturbation_carni_input <- as.data.frame(matrix(-1,1,1))
