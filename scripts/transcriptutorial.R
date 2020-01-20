@@ -234,6 +234,7 @@ omnipath_sif$target <- gsub("[-+{},;() ]","___",omnipath_sif$target)
 
 #We define the end points that we are trying to reach in the network, from the initial perturbation
 TF_carni_inputs <- as.data.frame(t(TF_activity))
+TF_carni_inputs <- TF_carni_inputs[,c(1:50)]
 names(TF_carni_inputs) <- gsub("[-+{},;() ]","___",names(TF_carni_inputs))
 
 #FOXA2 was knocked out so we define it as the initially perturbed node
