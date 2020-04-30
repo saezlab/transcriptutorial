@@ -226,6 +226,8 @@ omnipath_sif_2 <- omnipath[omnipath$is_inhibition ==1,c(3,7,4)] #Then we get the
 names(omnipath_sif) <- c("source","sign","target")
 names(omnipath_sif_2) <- c("source","sign","target")
 
+omnipath_sif_2$sign <- omnipath_sif_2$sign * -1
+
 #Then we bind together activations and inhibtion to get the complete network
 omnipath_sif <- as.data.frame(rbind(omnipath_sif,omnipath_sif_2)) 
 
