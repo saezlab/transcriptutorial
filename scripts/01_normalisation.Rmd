@@ -162,6 +162,11 @@ for(i in 1:length(count_df_vsn[,1]))
 }
 ```
 
+## Write count and target files for further analysis
+```{r}
+write_csv(count_df_vsn, "data/count_df_vsn.csv")
+write_csv(targets, "support/targets.csv")
+```
 ## Session Info Details
 
 ```{r, echo=FALSE, eval=TRUE}
