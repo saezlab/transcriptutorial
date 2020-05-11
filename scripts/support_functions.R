@@ -781,3 +781,68 @@ volcano_nice <- function (df, hAss = 0.05, FCIndex, pValIndex, IDIndex, vAss = N
   }
   return(a)
 }
+
+#'\code{magicPlotMakerLight}
+#'
+#'This function is designed to generate and save a battery of plots aimed at helping visualise a measurments dataframe.
+#'The function generate 3 plots to directly visualise measurements in the form of a cloud of points, a series of boxplots and surperimposed density curves.
+#'It also genereate a pca plot (using nicePCA unction if a targets table is provided).
+#'Finally it generates two heatmap, on directly clustering over the measurments and another one performing a clustring over the cross-correlation matrix of the samples.
+#'The plots are directly saved to a folder. Nothing is returned.
+#'
+#'@param df the measurment n*m dataframe (n is number of omic features, m is number of samples) where columns are ordered by conditions.
+#'@param targets A n*2 dataframe, where n is the number of samples. First column correspond to samples, second column correspond to conditions.
+magicPlotMakerLight <- function(df, targets = NULL, no_pca_label = FALSE)
+{
+
+  
+  if (!is.null(targets))
+  {
+    df_and_targets <- make_df_and_targets_great_again(df,targets)
+    df <- df_and_targets[[1]]
+    targets <- df_and_targets[[2]]
+  }
+  
+  ##This part is just to generate the melted dataframe for ggplot
+  df$ID <- row.names(df)
+  
+  melted_df <- reshape::melt(df)
+  index <- c(1:length(melted_df[,1]))
+  
+  df <- df[,-length(df[1,])]
+  
+  #########################################
+  ##                ggplots              ##
+  #########################################
+  
+  violins <- ggplot(melted_df, aes(x = index, y = value, group = variable, color = variable)) + geom_violin() + theme_minimal()
+  
+  # plot(violins)
+  
+  complete_df <- df[complete.cases(df),]
+  
+  t_complete_df <- t(complete_df)
+  if (is.null(targets)){
+    PCA <- prcomp(t_complete_df ,center = TRUE, scale. = T)
+    pcaPlot <- plot(PCA$x[,1],PCA$x[,2], pch = 19, xlab = paste("PC1 (",as.character(round(PCA$sdev[1]^2/sum(PCA$sdev^2)*100)),"%)"), ylab = paste("PC2 (",as.character(round(PCA$sdev[2]^2/sum(PCA$sdev^2)*100)),"%)"), main = "PCA of samples")
+    text(PCA$x[,1],PCA$x[,2], labels = names(PCA$x[,1]), pos = 3)
+  }
+  else
+  {
+    if (no_pca_label)
+    {
+      pcaPlot <- nicePCA(df = complete_df, targets, c(1,2,3), no_label = T)
+    }
+    else
+    {
+      pcaPlot <- nicePCA(df = complete_df, targets, c(1,2,3))
+    }
+  }
+  # plot(pcaPlot)
+  return(list(violins,pcaPlot))
+}
+
+
+
+
+
