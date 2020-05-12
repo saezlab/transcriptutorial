@@ -1,0 +1,112 @@
+---
+title: "02_Differential_analysis"
+author: "Aurelien Dugourd"
+date: "5/12/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### License Info
+
+This program is free software: you can redistribute it and/or modify it under 
+the terms of the GNU General Public License as published by the Free Software 
+Foundation, either version 3 of the License, or (at your option) any later 
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+Please check http://www.gnu.org/licenses/.
+
+## Introduction
+
+Here we present examples of differential analysis of omic dataset, 
+using RNAseq for the present case.
+
+## Getting Started
+
+We first load the required libraries. 
+
+```{r, message=FALSE}
+#Main libraries
+library(readr)
+library(limma)
+
+#Support functions also requires
+library(ggplot2)
+library(reshape)
+library(pheatmap)
+library(gridExtra)
+library(grid)
+library(cowplot)
+library(ggrepel)
+library(hexbin)
+
+#Import the support funciton script 
+#/!\/!\ PATH MAY NEED TO BE ADAPTED /!\/!\
+#/!\/!\ Don't forget to set working directory /!\/!\
+
+source("scripts/support_functions.R")
+```
+
+### Import the normalised dataframe and experiemental design
+
+```{r}
+#Data
+count_df_vsn <- as.data.frame(read_csv("data/count_df_vsn.csv"))
+row.names(count_df_vsn) <- count_df_vsn[,1]
+count_df_vsn <- count_df_vsn[,-1]
+#Design
+targets <- as.data.frame(read_csv("support/targets.csv"))
+```
+
+### LIMMA differential analysis
+now let's run a simple differential analysis using a simple wrapper for such situation
+
+```{r}
+#first check the conditions order
+unique(targets$condition)
+
+#we want to compare the KO with the WT so we build a comparison list
+comparisons <- list("KOvsWT" = c(2,-1)) #each vector of the list represent the contrasts, here we substract the first condition (-1) to the second one (2)
+
+#now that the comparisons are defined, we can run limma
+limmaRes <- runLimma(measurements = count_df_vsn, 
+                     targets = targets, 
+                     comparisons = comparisons)
+
+#once limma has run, we extract the statistic dataframe summarise the differential analysis
+ttop_KOvsWT <- ttopFormatter(topTable(limmaRes[[1]], coef = 1, number = length(count_df_vsn[,1]), adjust.method = "fdr"))
+
+##make a qqplot
+null_model <- pnorm(rnorm(length(ttop_KOvsWT[,1])))
+plot(sort(null_model), sort(ttop_KOvsWT$P.Value) ,xlim = c(1,0), ylim = c(1,0)) #not bad, not great, let's proceed
+abline(coef = c(0,1))
+```
+
+The qqplot (observed p-value distriubtion plotted against a random baseline) is meant to give usan idea of the signal strength when comparing KO and WT. The more the black dot line deviates from the diagonal toward the upper part of the plot, the stronger the signal is. This plot is very similar to a p-value histogram.
+
+In this case, we can oberse a decent signal, but there are many context where it could be much stronger. This type of difference is typical for single mutations comapred to a wild type, which usually lead to weak overall differences. Stronger differences are usually expected for treatment vs control experiments, or when comparing tumor vs healthy tissues.
+
+### Write the DA output
+```{r}
+write_csv(ttop_KOvsWT, "results/ttop_KOvsWT.csv")
+```
+
+## Session Info Details
+
+```{r, echo=FALSE, eval=TRUE}
+sessionInfo()
+```
+
+
+
+
+
+

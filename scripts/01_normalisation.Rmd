@@ -96,7 +96,9 @@ plot(plots[[1]]) #violins
 plot(plots[[2]]) #PCA
 ```
 
-From the violin plot, we can see that the distributions are bimodal. Usually this is because a lots of genes are expressed under the RNAseq detection threshold and will give rise to a noisy sub-distribution. We want to get rid of those reads, so based on the violin plot, we decide to exclude any transcript with less that 4 log2(counts)
+From the violin plot, we can see that the distributions are bimodal. Usually this is because a lots of genes are expressed under the RNAseq detection threshold and will give rise to a noisy sub-distribution. We want to get rid of those reads, so based on the violin plot, we decide to exclude any transcript with less that 4 log2(counts).
+
+Usually, A cleaned up dataframe wil have roughly between 9000 and 15000 measured genes.
 
 ```{r}
 count_df[log2(count_df) < 4 ] <- NA
@@ -164,6 +166,9 @@ for(i in 1:length(count_df_vsn[,1]))
 
 ## Write count and target files for further analysis
 ```{r}
+to_write <- count_df_vsn
+to_write$gene <- row.names(to_write)
+to_write <- to_write[,c(length(to_write[1,]),1:(length(to_write[1,])-1))]
 write_csv(count_df_vsn, "data/count_df_vsn.csv")
 write_csv(targets, "support/targets.csv")
 ```
