@@ -124,7 +124,7 @@ us to select the TFs whose activity varies the conditions under study.
 
 It is important to set the parameter `eset.filter` to `FALSE`. In this case,
 we set the minimun size of regulons to five (`minsize`). I strongly recommend
-to check `?viper` to decide the parameter that best fits your needs. 
+to check `?viper` to set the parameters that best fits your needs. 
 
 ```{r ViperStat, message=FALSE}
 tf_activities_stat <- dorothea::run_viper(ttop_KOvsWT_matrix, regulons,
@@ -166,6 +166,17 @@ targets_IRF2 <- regulons$target[regulons$tf == "IRF2"]
 volcano_nice(as.data.frame(ttop_KOvsWT[ttop_KOvsWT$ID %in% targets_IRF2,]), 
     FCIndex = 2, pValIndex = 5, IDIndex = 1,nlabels = 20, label = TRUE, 
     straight = FALSE) 
+```
+
+The TF activity enrichment results provided by **Viper** are used as an input
+in the **CARNIVAL** method. **CARNIVAL** tries to infer the most likely 
+upstream signaling events leading to the current TF activity results. 
+
+```{r WriteCsv}
+tf_activities_CARNIVALinput<- tf_activities_stat %>%
+    as.data.frame() %>% 
+    tibble::rownames_to_column(var = "TF") 
+write_csv(tf_activities_CARNIVALinput, "../results/TFActivity_CARNIVALinput.csv")
 ```
 
 We now compute TFs activities per every sample (with the replicates) using the 

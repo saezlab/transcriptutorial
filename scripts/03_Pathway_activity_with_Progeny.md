@@ -202,8 +202,9 @@ pathway activity values between 1 and -1.
 PathwayActivity_CARNIVALinput <- progeny(ttop_KOvsWT_matrix, 
     scale=TRUE, organism="Human", top = 100, perm = 10000, z_scores = FALSE) %>%
     t () %>% 
-    as.data.frame()
-colnames(PathwayActivity_CARNIVALinput) <- "score"
+    as.data.frame() %>% 
+    tibble::rownames_to_column(var = "Pathway") 
+colnames(PathwayActivity_CARNIVALinput)[2] <- "score"
 write_csv(PathwayActivity_CARNIVALinput, 
     "../results/PathwayActivity_CARNIVALinput.csv")
 ```
@@ -231,13 +232,13 @@ write_csv(PathwayActivity_CARNIVALinput,
 
 ## Session Info Details
 
-    ## R version 3.6.3 (2020-02-29)
+    ## R version 4.0.0 (2020-04-24)
     ## Platform: x86_64-pc-linux-gnu (64-bit)
-    ## Running under: Ubuntu 18.04.4 LTS
+    ## Running under: Ubuntu 19.10
     ## 
     ## Matrix products: default
-    ## BLAS:   /usr/local/lib/R/lib/libRblas.so
-    ## LAPACK: /usr/local/lib/R/lib/libRlapack.so
+    ## BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+    ## LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.3.7.so
     ## 
     ## locale:
     ##  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
@@ -252,16 +253,16 @@ write_csv(PathwayActivity_CARNIVALinput,
     ## 
     ## other attached packages:
     ## [1] readr_1.3.1     pheatmap_1.0.12 ggplot2_3.3.0   dplyr_0.8.5    
-    ## [5] tidyr_1.0.2     tibble_3.0.0    dorothea_0.99.5 progeny_1.9.7  
+    ## [5] tidyr_1.0.3     tibble_3.0.1    dorothea_1.0.0  progeny_1.10.0 
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] Rcpp_1.0.4         RColorBrewer_1.1-2 compiler_3.6.3     pillar_1.4.3      
-    ##  [5] tools_3.6.3        digest_0.6.25      evaluate_0.14      lifecycle_0.2.0   
-    ##  [9] gtable_0.3.0       pkgconfig_2.0.3    rlang_0.4.5        cli_2.0.2         
-    ## [13] ggrepel_0.8.2      yaml_2.2.1         xfun_0.12          gridExtra_2.3     
-    ## [17] withr_2.1.2        stringr_1.4.0      knitr_1.28         hms_0.5.3         
-    ## [21] vctrs_0.2.4        grid_3.6.3         tidyselect_1.0.0   glue_1.4.0        
-    ## [25] R6_2.4.1           fansi_0.4.1        rmarkdown_2.1      farver_2.0.3      
-    ## [29] bcellViper_1.22.0  purrr_0.3.3        magrittr_1.5       scales_1.1.0      
-    ## [33] ellipsis_0.3.0     htmltools_0.4.0    assertthat_0.2.1   colorspace_1.4-1  
-    ## [37] labeling_0.3       stringi_1.4.6      munsell_0.5.0      crayon_1.3.4
+    ##  [1] Rcpp_1.0.4.6       RColorBrewer_1.1-2 pillar_1.4.4       compiler_4.0.0    
+    ##  [5] tools_4.0.0        digest_0.6.25      evaluate_0.14      lifecycle_0.2.0   
+    ##  [9] gtable_0.3.0       pkgconfig_2.0.3    rlang_0.4.6        ggrepel_0.8.2     
+    ## [13] yaml_2.2.1         xfun_0.13          gridExtra_2.3      withr_2.2.0       
+    ## [17] stringr_1.4.0      knitr_1.28         hms_0.5.3          vctrs_0.3.0       
+    ## [21] grid_4.0.0         tidyselect_1.1.0   glue_1.4.1         R6_2.4.1          
+    ## [25] rmarkdown_2.1      farver_2.0.3       purrr_0.3.4        bcellViper_1.24.0 
+    ## [29] magrittr_1.5       scales_1.1.1       ellipsis_0.3.0     htmltools_0.4.0   
+    ## [33] assertthat_0.2.1   colorspace_1.4-1   labeling_0.3       stringi_1.4.6     
+    ## [37] munsell_0.5.0      crayon_1.3.4

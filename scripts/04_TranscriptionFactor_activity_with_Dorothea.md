@@ -129,7 +129,7 @@ varies the conditions under study.
 
 It is important to set the parameter `eset.filter` to `FALSE`. In this
 case, we set the minimun size of regulons to five (`minsize`). I
-strongly recommend to check `?viper` to decide the parameter that best
+strongly recommend to check `?viper` to set the parameters that best
 fits your needs.
 
 ``` r
@@ -177,6 +177,18 @@ volcano_nice(as.data.frame(ttop_KOvsWT[ttop_KOvsWT$ID %in% targets_IRF2,]),
 ```
 
 ![](04_TranscriptionFactor_activity_with_Dorothea_files/figure-gfm/Volcano-1.png)<!-- -->
+
+The TF activity enrichment results provided by **Viper** are used as an
+input in the **CARNIVAL** method. **CARNIVAL** tries to infer the most
+likely upstream signaling events leading to the current TF activity
+results.
+
+``` r
+tf_activities_CARNIVALinput<- tf_activities_stat %>%
+    as.data.frame() %>% 
+    tibble::rownames_to_column(var = "TF") 
+write_csv(tf_activities_CARNIVALinput, "../results/TFActivity_CARNIVALinput.csv")
+```
 
 We now compute TFs activities per every sample (with the replicates)
 using the normalised counts. We display the results of the previous 25

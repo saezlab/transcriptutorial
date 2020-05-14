@@ -128,6 +128,7 @@ progeny_hmap <- pheatmap(t(PathwayActivity_counts),fontsize=14,
     treeheight_col = 0,  border_color = NA)
 ```
 
+
 Now, we run an enrichment analysis using a competitive permutation approach to 
 asses the significance of the pathway activity. 
 
@@ -192,8 +193,9 @@ slighly different parameters, since we need pathway activity values between
 PathwayActivity_CARNIVALinput <- progeny(ttop_KOvsWT_matrix, 
     scale=TRUE, organism="Human", top = 100, perm = 10000, z_scores = FALSE) %>%
     t () %>% 
-    as.data.frame()
-colnames(PathwayActivity_CARNIVALinput) <- "score"
+    as.data.frame() %>% 
+    tibble::rownames_to_column(var = "Pathway") 
+colnames(PathwayActivity_CARNIVALinput)[2] <- "score"
 write_csv(PathwayActivity_CARNIVALinput, 
     "../results/PathwayActivity_CARNIVALinput.csv")
 ```
