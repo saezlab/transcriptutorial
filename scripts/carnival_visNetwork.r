@@ -42,6 +42,7 @@ carnival_visNet <- function(evis, nvis, mapIDs=NULL){
   ## nodes
   nvis = nvis[which(nvis$ZeroAct!=100),]
   nvis$ZeroAct = NULL
+  nvis = nvis[which(nvis$Node%in%union(evis$from, evis$to)),]
   
   if(!is.null(mapIDs)){
     nvis = merge.data.frame(nvis, mapIDs[,c("uniprot_id", "hgnc_symbol")], by.x = "Node", by.y = "uniprot_id")
