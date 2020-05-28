@@ -2,7 +2,9 @@
 title: "05_network_reconstruction_with_CARNIVAL"
 author: "Risa Hernansaiz-Ballesteros"
 date: "18/05/2020"
-output: github_document
+output: 
+  html_document: default
+  github_document: default
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
@@ -74,6 +76,7 @@ library(ggrepel)
 ## We also load the support functions
 source("assignPROGENyScores.r")
 source("generateTFList.r")
+source("carnival_visNetwork.r")
 ```
 
 In addition, we read the results from the previous scripts: 
@@ -211,11 +214,13 @@ carnival_result$nodesAttributes$UpAct <- as.numeric(carnival_result$nodesAttribu
 carnival_result$nodesAttributes$DownAct <- as.numeric(carnival_result$nodesAttributes$DownAct)
 carnival_result$nodesAttributes$AvgAct <- as.numeric(carnival_result$nodesAttributes$AvgAct)
 
+saveRDS(carnival_result,"../results/carnival_result.rds")
+
 # visualization
 visNet = carnival_visNet(evis = carnival_result$weightedSIF,
-                nvis = carnival_result$nodesAttributes)
+                         nvis = carnival_result$nodesAttributes)
 visNet
-visSave(file = paste0('carnival_visualization_visNetwork.html'), selfcontained = TRUE)
+visSave(visNet, file = paste0('carnival_visualization_visNetwork.html'), selfcontained = TRUE)
 
 ```
 
