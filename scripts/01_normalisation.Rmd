@@ -169,7 +169,7 @@ for(i in 1:length(count_df_vsn[,1]))
 to_write <- count_df_vsn
 to_write$gene <- row.names(to_write)
 to_write <- to_write[,c(length(to_write[1,]),1:(length(to_write[1,])-1))]
-write_csv(count_df_vsn, "data/count_df_vsn.csv")
+write_csv(to_write, "data/count_df_vsn.csv")
 write_csv(targets, "support/targets.csv")
 ```
 ## Session Info Details
