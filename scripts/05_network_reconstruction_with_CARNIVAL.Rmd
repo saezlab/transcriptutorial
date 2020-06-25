@@ -156,7 +156,7 @@ load(file = system.file("progenyMembers.RData",package="CARNIVAL"))
 PathwayActivity_carnival <- data.frame(PathwayActivity, stringsAsFactors = F)
 rownames(PathwayActivity_carnival) <- PathwayActivity_carnival$Pathway
 PathwayActivity_carnival$Pathway <- NULL
-progenylist = CARNIVAL::assignPROGENyScores(progeny = t(PathwayActivity_carnival), 
+progenylist = assignPROGENyScores(progeny = t(PathwayActivity_carnival), 
                                             progenyMembers = progenyMembers, 
                                             id = "gene", 
                                             access_idx = 1)
@@ -164,14 +164,25 @@ progenylist = CARNIVAL::assignPROGENyScores(progeny = t(PathwayActivity_carnival
 
 ## Running CARNIVAL
 
-CARNIVAL has been developed to find the causal link of specific permutations.
-The paramenter that controls it is _inputObj_.
-If we don't have a specific permutation to check,
-we can also run CARNIVAL without that information.
-To do so, we can set _inputObj_ as _NULL_, where a _"permutation"_ node will
-check how the activation or the inhibition affect the permuted nodes.
-A way in between is to pass the "initial" nodes of the network as _permutated_
-one but with out sign. This last case is the one we are using in this example.
+CARNIVAL has been developed to find the causal link between the activities of the transcription factors (TFs) and the 'perturbed' nodes.
+In current version, v1.0.0, we have 3 main inputs that we have to provide:
+
++ _measObj_: The TFs' activities (like the ones we have obtained from DoRothEA)
++ _inputObj_: The 'perturbed' nodes we want that CARNIVAL connects with the activity of TFs. 
+There are 3 ways of using it:
+(1) Give the name and sign of the selected nodes; 
+(2) Give the name only, so the algorithm will select the sign that best fit the models,
+(3) Give _NULL_ as value will create a "Perturbation" node that will try both signs for all 'initial' nodes of the given network ( _netObj_ ).
++ _netObj_: The network that will serve as map to connect the TFs' activities ( _measObj_ ) and the perturbed nodes ( _inputObj_ )
+
+Although it is not required, a fourth object called _weightObj_ can be also given. 
+This object gives values ranged from -1 to 1 for a set of nodes of the network.
+The aim of _weightObj_ is helping the solver to find optimal solutions faster.
+
+In the present example, we use assign as perturbation nodes all the "initial" nodes (option 2),
+and as _weightObj_ the PROGENy scores assigned to the most representative genes of the calculated pathways,
+
+Please, check the FAQ file to get some more insights.
 
 ```{r carnival, message=FALSE}
 
