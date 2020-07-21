@@ -21,3 +21,11 @@ So the progeny pathway activities are mapped on those upstream genes and help co
 
 - Can I get very different networks after multiple CARNIVAL runs on the same data and parameters?
 No, CARNIVAL is deterministic. It should lead to the same solutions everytime you run it.
+
+- If I don't know the state ( active / inactive ) of the perturbed node, what can I do?
+You can run inverse CARNIVAL to test both states with all the possible perturbed nodes,
+or you can give the name of all the nodes you are interested on without value.
+See the transcriptutorial for an example of this.
+
+- can I use CARNIVAL with another species that is not human?
+You can! As long as all the inputs you give are consistent.
