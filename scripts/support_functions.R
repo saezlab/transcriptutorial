@@ -843,6 +843,20 @@ magicPlotMakerLight <- function(df, targets = NULL, no_pca_label = FALSE)
 }
 
 
-
+plotTF <- function(TF, geneLevelStats, regulon_df)
+{
+  names(geneLevelStats) <- c("ID","stat")
+  targets <- regulon_df[regulon_df$TF == TF,]
+  names(targets) <- c("ID","TF","sign")
+  target_stats <- merge(geneLevelStats,targets, by = "ID")
+  target_stats$stat <- target_stats$stat * target_stats$sign
+  target_stats <- target_stats[order(target_stats$stat, decreasing = T),]
+  target_stats <- unique(target_stats)
+  target_stats$ID <- factor(target_stats$ID, levels = target_stats$ID)
+  
+  
+  
+  plot(ggplot(target_stats,aes(x = ID, y  = stat, fill = stat))+ geom_bar(stat = "identity"))
+}
 
 
