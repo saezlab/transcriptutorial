@@ -1,9 +1,8 @@
 ---
 title: "05_network_reconstruction_with_CARNIVAL"
-author: "Risa Hernansaiz-Ballesteros"
+author: "Rosa Hernansaiz-Ballesteros"
 date: "18/05/2020"
 output: 
-  html_document: default
   github_document: default
 ---
 
@@ -140,7 +139,7 @@ write_tsv(sif, "../results/omnipath_carnival.tsv")
 ## Transcription Factor and pathway activities for CARNIVAL
 
 We use the supplementary functions _generateTFList.r_ and _assignPROGENyScores.r_
-to shift the formats of tf_activities and PathwayActivity to the one required for CARNIVAL.
+to shift the formats of tf_activities and PathwayActivity to the one required by CARNIVAL.
 
 ```{r shiftFormats, message=FALSE}
 
@@ -197,14 +196,14 @@ carnival_result = runCARNIVAL( inputObj= iniciators,
                                netObj = sif, 
                                weightObj = progenylist$score, 
                                solverPath = "/Applications/CPLEX_Studio129/cplex/bin/x86-64_osx/cplex", 
-                               solver = "cplex", 
-                               DOTfig = F,
+                               solver = "cplex",
                                timelimit=7200,
                                mipGAP=0,
                                poolrelGAP=0 )
 ```
 
 CARNIVAL gives a list of 4 elements:
+
 + weightedSIF: summary of all interactions found in all models
 + nodesAttributes: summary of all nodes and how many times are they found in the different models
 + sifAll: networks of all the models
@@ -230,7 +229,7 @@ saveRDS(carnival_result,"../results/carnival_result.rds")
 # visualization
 visNet = carnival_visNet(evis = carnival_result$weightedSIF,
                          nvis = carnival_result$nodesAttributes)
-visNet
+#visNet
 visSave(visNet, file = paste0('carnival_visualization_visNetwork.html'), selfcontained = TRUE)
 
 ```
