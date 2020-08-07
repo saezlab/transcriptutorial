@@ -48,6 +48,17 @@ for ( n in names(tfList) ){
                                  timelimit = 7200,
                                  mipGAP = 0,
                                  poolrelGAP = 0 )
+  
+  #transoform to data.frame
+  carnival_result[[n]]$weightedSIF <- data.frame(carnival_result[[n]]$weightedSIF, stringsAsFactors = F)
+  carnival_result[[n]]$weightedSIF$Sign <- as.numeric(carnival_result[[n]]$weightedSIF$Sign)
+  carnival_result[[n]]$weightedSIF$Weight <- as.numeric(carnival_result[[n]]$weightedSIF$Weight)
+  
+  carnival_result[[n]]$nodesAttributes <- data.frame(carnival_result[[n]]$nodesAttributes, stringsAsFactors = F)
+  carnival_result[[n]]$nodesAttributes$ZeroAct <- as.numeric(carnival_result[[n]]$nodesAttributes$ZeroAct)
+  carnival_result[[n]]$nodesAttributes$UpAct <- as.numeric(carnival_result[[n]]$nodesAttributes$UpAct)
+  carnival_result[[n]]$nodesAttributes$DownAct <- as.numeric(carnival_result[[n]]$nodesAttributes$DownAct)
+  carnival_result[[n]]$nodesAttributes$AvgAct <- as.numeric(carnival_result[[n]]$nodesAttributes$AvgAct)
  
   saveRDS(carnival_result,"../results/carnival_sample_resolution.rds")   
 }
