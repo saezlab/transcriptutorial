@@ -1,0 +1,146 @@
+---
+title: "06_analysis_CARNIVAL_results"
+author: "Rosa Hernansaiz-Ballesteros"
+date: "18/05/2020"
+output: 
+  github_document: default
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### License Info
+
+This program is free software: you can redistribute it and/or modify it under 
+the terms of the GNU General Public License as published by the Free Software 
+Foundation, either version 3 of the License, or (at your option) any later 
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+Please check http://www.gnu.org/licenses/.
+
+## CARNIVAL output
+
+CARNIVAL (CAusal Reasoning for Network identification using Integer VALue programming) 
+returns a list with 4 elements: 
+
+* weightedSIF. Character matrix. Contains a summary of _sifAll_, 
+where *Weight* indicates the number of networks that present that interaction.
+
+* nodesAttributes. Character matrix. Contains a summary of _attributesAll_, 
+where all columns ending in *Act* indicate the number of networks that present that node in
+each of the states (Zero = doesn't appear in the network, Up = upregulated, Down = downregulated, Avg = average regulation).
+The column *NodeType* indicates if the node is a TF's (T) or a perturbed one (S).
+
+* sifAll. List of character matrices. All networks that have been calculated.
+
+* attributesAll. List of character matrices.
+
+NOTE: This is valid for current CARNIVAL version (1.0.0)
+
+## CARNIVAL interpretation
+
+The summary files ( _sifAll_ and _attributesAll_ ) can be directly used to identify causal interactions between the 
+perturbed nodes and the selected Transcription Factors. 
+In addition to extract direct information from the network, 
+we can run different downstream analysis based on the necesities of each project.
+
+Here are described some of the downstream approaches that we have used:
+
++ Pathway enrichment analysis
++ Network comparisons
+
+# Get ready
+
+```{r libraries, message=FALSE}
+library(readr)
+library(piano)
+library(dplyr)
+library(ggplot2)
+library(tibble)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(plyr)
+library(GSEABase)
+
+## We also load the support functions
+source("support_enrichment.r")
+```
+
+# Enrichment Analysis
+
+We define two different gene sets in order tor conduct the enrichment.
+The first set contains the nodes that appear in the CARNIVAL output,
+and are therefore relevant in the context of our input transcriptomic data. 
+The second set contains all the genes in our prior knowledge network which are used as the backgroud.
+
+We also downloaded from MSigDB https://www.gsea-msigdb.org/ the following dataset: c2.cp.v7.1.symbols.gmt. 
+It contains several pathways from different resources and the genes that are known to be involved in those pathways.
+
+Using the *Piano* R package, 
+we run a gene set analysis (GSA) based on a list of significant genes (CARNIVAL nodes) and a gene set collection (background). 
+It uses Fisher’s exact test.
+
+```{r enrichment, message=FALSE}
+
+# read differential expression analysis
+ttop_KOvsWT = read_csv("../results/ttop_KOvsWT.csv")
+
+#read CARNIVAL results
+carnival_result = readRDS("../results/carnival_result.rds")
+carnival_sample_resolution = readRDS("../results/carnival_sample_resolution.rds")
+
+# Load pathways
+pathways <- gmt_to_csv("../../Hepatoblastoma-iPC/proteomics/data/c2.cp.v7.1.symbols.gmt")
+
+# Extract nodes and background
+nodes_carnival = extractCARNIVALnodes(carnival_result)
+
+# Run GSA hyper Geometric test
+sig_pathways <- runGSAhyper(genes = nodes_carnival$sucesses, 
+    universe = nodes_carnival$bg, gsc = loadGSC(pathways))
+sig_pathways_df <- as.data.frame(sig_pathways$resTab)  %>% 
+  tibble::rownames_to_column(var = "pathway") 
+
+#data for plotting
+PathwaysSelect <- sig_pathways_df %>%
+    dplyr::select(pathway, `p-value`, `Adjusted p-value`) %>%
+    dplyr::filter(`Adjusted p-value` <= 0.001) %>%
+    dplyr::rename(pvalue = `p-value`, AdjPvalu = `Adjusted p-value`) %>% 
+    dplyr::mutate(pathway = as.factor(pathway))
+
+
+# Visualize top results
+ggplot(PathwaysSelect, aes(x = reorder(pathway, pvalue), 
+            y = -log10(pvalue))) + 
+        geom_bar(stat = "identity") +
+        scale_fill_gradient2(low = "darkblue", high = "indianred", 
+            mid = "whitesmoke", midpoint = 0) + 
+        coord_flip() +
+        theme_minimal() +
+        theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank()) + 
+        xlab("")
+
+```
+
+# Network comparison
+
+When we have more than 1 network, we usually would like to know how (dis)similar these networks are.
+We can get a sense of the size of the reconstructed networks using topological parameters, such as number of edges and nodes.
+
+```{r enrichment, message=FALSE}
+
+
+```
+
+## Session Info Details
+
+```{r sessionInfo, echo=FALSE, eval=TRUE}
+sessionInfo()
+```
