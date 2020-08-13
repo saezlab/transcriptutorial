@@ -1,7 +1,7 @@
 ---
 title: "06_analysis_CARNIVAL_results"
 author: "Rosa Hernansaiz-Ballesteros"
-date: "18/05/2020"
+date: "18/07/2020"
 output: 
   github_document: default
 ---
@@ -67,9 +67,22 @@ library(dplyr)
 library(ggplot2)
 library(plyr)
 library(GSEABase)
+library(network)
+library(reshape2)
+
+# set working directory
+setwd("/Users/rosherbal/Projects/transcriptutorial/scripts")
 
 ## We also load the support functions
 source("support_enrichment.r")
+source("support_networks.r")
+
+## and the data
+
+#read CARNIVAL results
+carnival_result = readRDS("../results/carnival_result.rds")
+carnival_sample_resolution = readRDS("../results/carnival_sample_resolution.rds")
+
 ```
 
 # Enrichment Analysis
@@ -88,15 +101,8 @@ It uses Fisher’s exact test.
 
 ```{r enrichment, message=FALSE}
 
-# read differential expression analysis
-ttop_KOvsWT = read_csv("../results/ttop_KOvsWT.csv")
-
-#read CARNIVAL results
-carnival_result = readRDS("../results/carnival_result.rds")
-carnival_sample_resolution = readRDS("../results/carnival_sample_resolution.rds")
-
 # Load pathways
-pathways <- gmt_to_csv("../../Hepatoblastoma-iPC/proteomics/data/c2.cp.v7.1.symbols.gmt")
+pathways = gmt_to_csv("../../Hepatoblastoma-iPC/proteomics/data/c2.cp.v7.1.symbols.gmt")
 
 # Extract nodes and background
 nodes_carnival = extractCARNIVALnodes(carnival_result)
@@ -113,7 +119,6 @@ PathwaysSelect <- sig_pathways_df %>%
     dplyr::filter(`Adjusted p-value` <= 0.001) %>%
     dplyr::rename(pvalue = `p-value`, AdjPvalu = `Adjusted p-value`) %>% 
     dplyr::mutate(pathway = as.factor(pathway))
-
 
 # Visualize top results
 ggplot(PathwaysSelect, aes(x = reorder(pathway, pvalue), 
@@ -133,9 +138,70 @@ ggplot(PathwaysSelect, aes(x = reorder(pathway, pvalue),
 
 When we have more than 1 network, we usually would like to know how (dis)similar these networks are.
 We can get a sense of the size of the reconstructed networks using topological parameters, such as number of edges and nodes.
+We can also have a look at the network's density and the *degree distribution*.
+The *density* indicates the proportion of interactions that exisit in our network when comparing with all posible interactions that can be stablished. 
+The *degree distribution* shows the number of connections of a node. 
+In a direct network, we can distinguish between incoming and outgoing connections.
 
-```{r enrichment, message=FALSE}
+NOTE: Here the density is calculated for a _direct graph_.
+As CARNIVAL can repot 2 interactions between the same 2 nodes with different sign, 
+these "doubled" interactions are excluded when calculating the density.
 
+
+```{r netcompare, message=FALSE}
+
+# get only summary files from CARNIVAL results
+sifts = lapply(carnival_sample_resolution, function(x){x$weightedSIF})
+nodos = lapply(carnival_sample_resolution, function(x){x$nodesAttributes})
+
+# Calculate the number of edges and nodes in the networks and it's density
+node_edge = do.call(rbind,lapply(sifts, count_edges_nodes_degree))
+
+# Calculate degree distribution for a sample
+count_degree = sifts$PANC1.FOXA2KO.Rep3 %>% degree_count
+
+#degree distribution
+p = data.frame(table(count_degree$total_count) / nrow(count_degree))
+colnames(p) = c("Var1", "total_degree")
+p = merge.data.frame(p, data.frame(table(count_degree$in_count) / nrow(count_degree)), all = T)
+colnames(p) = c("Var1", "total_degree", "in_degree")
+p = merge.data.frame(p, data.frame(table(count_degree$out_count) / nrow(count_degree)), all = T)
+colnames(p) = c("k", "total_degree", "in_degree", "out_degree")
+p = melt(p)
+p$k = relevel(p$k, "0")
+#visualize
+ggdat = as.data.frame(node_edge) %>% tibble::rownames_to_column(var = "sample") %>%
+  dplyr::mutate(condition = gsub(".Rep[0-9]{1}", "", sample))
+
+#Ploting
+
+# relation between number of edges and nodes
+ggplot(ggdat, aes(x = nodes, y = edges, color = as.factor(condition))) +
+  geom_point() +
+  geom_text(label = ggdat$sample, 
+            check_overlap = TRUE,
+            vjust = 0, 
+            nudge_y = 0.5,
+            show.legend = F) +
+  theme_bw(base_size = 15) +
+  guides(color = guide_legend( title="Conditions" ) ) +
+  ggtitle("Node-edge composition")
+
+#networ degree
+ggplot(ggdat, aes(x = density, y = sample, fill = as.factor(condition) )) +
+  geom_col() +
+  theme_bw(base_size = 15) +
+  guides(fill = guide_legend( title="Conditions" ) ) +
+  ggtitle("Network degree")
+
+# degree distribution
+
+ggplot(data = p, aes(x = as.factor(k), y = value, group= variable, color = variable)) +
+  geom_point() +
+  geom_line()  +
+  theme_bw(base_size = 15) +
+  guides(color = guide_legend( title="degree type" ) ) +
+  ggtitle("Degree distribution")
 
 ```
 
