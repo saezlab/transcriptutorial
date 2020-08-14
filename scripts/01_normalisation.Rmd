@@ -2,9 +2,7 @@
 title: "01_normalisation"
 author: "Aurelien Dugourd"
 date: "5/11/2020"
-output:
-  pdf_document: default
-  html_document: default
+output: github_document
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
@@ -47,10 +45,7 @@ library(cowplot)
 library(ggrepel)
 library(hexbin)
 
-#Import the support funciton script 
-#/!\/!\ PATH NEEDS TO BE ADAPTED /!\/!\
-
-source("scripts/support_functions.R")
+source("support_functions.R")
 ```
 
 ### Import the raw count dataframe
@@ -61,8 +56,8 @@ it in the data folder
 ```{r}
 ## Raw counts table
 GSE119931_PANC1_FOXA2KO_genes_counts <- as.data.frame(
-  read_delim("data/GSE119931_PANC1.FOXA2KO.genes.counts.txt", 
-                                                   "\t", escape_double = FALSE, trim_ws = TRUE)) 
+  read_delim("../data/GSE119931_PANC1.FOXA2KO.genes.counts.txt", 
+             "\t", escape_double = FALSE, trim_ws = TRUE)) 
 
 count_df <- GSE119931_PANC1_FOXA2KO_genes_counts[,c(7:12)]
 row.names(count_df) <- GSE119931_PANC1_FOXA2KO_genes_counts$Geneid
@@ -145,8 +140,8 @@ we need to do some identifer kung-fu
 
 #I got this identifer matching dataframe from uniprot
 gene_id_mapping_from_uniprot <- as.data.frame(
-  read_delim("support/gene_id_mapping_from_uniprot.tab", 
-                                           "\t", escape_double = FALSE, trim_ws = TRUE))
+  read_delim("../support/gene_id_mapping_from_uniprot.tab", 
+             "\t", escape_double = FALSE, trim_ws = TRUE))
 gene_id_mapping_from_uniprot <- gene_id_mapping_from_uniprot[!is.na(gene_id_mapping_from_uniprot$`Gene names`),]
 
 #let's make a pseudo dictionary to make the mapping efficient
@@ -169,8 +164,8 @@ for(i in 1:length(count_df_vsn[,1]))
 to_write <- count_df_vsn
 to_write$gene <- row.names(to_write)
 to_write <- to_write[,c(length(to_write[1,]),1:(length(to_write[1,])-1))]
-write_csv(to_write, "data/count_df_vsn.csv")
-write_csv(targets, "support/targets.csv")
+write_csv(to_write, "../data/count_df_vsn.csv")
+write_csv(targets, "../support/targets.csv")
 ```
 ## Session Info Details
 
