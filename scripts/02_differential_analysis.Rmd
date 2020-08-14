@@ -2,9 +2,7 @@
 title: "02_Differential_analysis"
 author: "Aurelien Dugourd"
 date: "5/12/2020"
-output:
-  pdf_document: default
-  html_document: default
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -48,22 +46,18 @@ library(cowplot)
 library(ggrepel)
 library(hexbin)
 
-#Import the support funciton script 
-#/!\/!\ PATH MAY NEED TO BE ADAPTED /!\/!\
-#/!\/!\ Don't forget to set working directory /!\/!\
-
-source("scripts/support_functions.R")
+source("support_functions.R")
 ```
 
 ### Import the normalised dataframe and experiemental design
 
 ```{r}
 #Data
-count_df_vsn <- as.data.frame(read_csv("data/count_df_vsn.csv"))
+count_df_vsn <- as.data.frame(read_csv("../data/count_df_vsn.csv"))
 row.names(count_df_vsn) <- count_df_vsn[,1]
 count_df_vsn <- count_df_vsn[,-1]
 #Design
-targets <- as.data.frame(read_csv("support/targets.csv"))
+targets <- as.data.frame(read_csv("../support/targets.csv"))
 ```
 
 ### LIMMA differential analysis
@@ -96,7 +90,7 @@ In this case, we can oberse a decent signal, but there are many context where it
 
 ### Write the DA output
 ```{r}
-write_csv(ttop_KOvsWT, "results/ttop_KOvsWT.csv")
+write_csv(ttop_KOvsWT, "../results/ttop_KOvsWT.csv")
 ```
 
 ## Session Info Details
