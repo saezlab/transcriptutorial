@@ -1,7 +1,7 @@
 06\_analysis\_CARNIVAL\_results
 ================
 Rosa Hernansaiz-Ballesteros
-18/07/2020
+14/08/2020
 
 ### License Info
 
@@ -63,11 +63,12 @@ library(ggplot2)
 library(tibble)
 library(tidyr)
 library(dplyr)
-library(ggplot2)
+library(scales)
 library(plyr)
 library(GSEABase)
 library(network)
 library(reshape2)
+library(cowplot)
 
 # set working directory
 setwd("/Users/rosherbal/Projects/transcriptutorial/scripts")
@@ -146,21 +147,27 @@ ggplot(PathwaysSelect, aes(x = reorder(pathway, pvalue),
 
 ![](06_analysis_CARNIVAL_results_files/figure-gfm/enrichment-1.png)<!-- -->
 
-# Network comparison
+# Topological measurments
 
-When we have more than 1 network, we usually would like to know how
-(dis)similar these networks are. We can get a sense of the size of the
-reconstructed networks using topological parameters, such as number of
-edges and nodes. We can also have a look at the network’s density and
-the *degree distribution*. The *density* indicates the proportion of
-interactions that exisit in our network when comparing with all posible
-interactions that can be stablished. The *degree distribution* shows the
-number of connections of a node. In a direct network, we can distinguish
-between incoming and outgoing connections.
+We can get a sense of the size of the reconstructed networks using
+topological parameters, such as number of edges and nodes. We can also
+have a look at the network’s density and the *degree distribution*. The
+*density* indicates the proportion of interactions that exisit in our
+network when comparing with all posible interactions that can be
+stablished. The *degree distribution* shows the number of connections of
+a node. In a direct network, we can distinguish between incoming and
+outgoing connections.
 
 NOTE: Here the density is calculated for a *direct graph*. As CARNIVAL
 can repot 2 interactions between the same 2 nodes with different sign,
 these “doubled” interactions are excluded when calculating the density.
+
+To know more about this topic:
+
+  - <https://mathinsight.org/degree_distribution>
+  - <https://www.networksciencebook.com/chapter/2#degree>
+
+<!-- end list -->
 
 ``` r
 # get only summary files from CARNIVAL results
@@ -180,8 +187,9 @@ p = merge.data.frame(p, data.frame(table(count_degree$in_count) / nrow(count_deg
 colnames(p) = c("Var1", "total_degree", "in_degree")
 p = merge.data.frame(p, data.frame(table(count_degree$out_count) / nrow(count_degree)), all = T)
 colnames(p) = c("k", "total_degree", "in_degree", "out_degree")
-p = melt(p)
+p = melt(p, value.name = "p", id.vars = "k")
 p$k = relevel(p$k, "0")
+
 #visualize
 ggdat = as.data.frame(node_edge) %>% tibble::rownames_to_column(var = "sample") %>%
   dplyr::mutate(condition = gsub(".Rep[0-9]{1}", "", sample))
@@ -201,7 +209,7 @@ ggplot(ggdat, aes(x = nodes, y = edges, color = as.factor(condition))) +
   ggtitle("Node-edge composition")
 ```
 
-![](06_analysis_CARNIVAL_results_files/figure-gfm/netcompare-1.png)<!-- -->
+![](06_analysis_CARNIVAL_results_files/figure-gfm/netopology-1.png)<!-- -->
 
 ``` r
 #networ degree
@@ -212,24 +220,68 @@ ggplot(ggdat, aes(x = density, y = sample, fill = as.factor(condition) )) +
   ggtitle("Network degree")
 ```
 
-![](06_analysis_CARNIVAL_results_files/figure-gfm/netcompare-2.png)<!-- -->
+![](06_analysis_CARNIVAL_results_files/figure-gfm/netopology-2.png)<!-- -->
 
 ``` r
 # degree distribution
 
-ggplot(data = p, aes(x = as.factor(k), y = value, group= variable, color = variable)) +
+dd <- ggplot(data = p, aes(x = k, y = p, group = variable, color = variable)) +
   geom_point() +
-  geom_line()  +
+  geom_line() +
   theme_bw(base_size = 15) +
-  guides(color = guide_legend( title="degree type" ) ) +
+  theme(legend.position="none") +
+  guides(color = guide_legend( title = "degree type" ) ) +
   ggtitle("Degree distribution")
+
+ddp <- ggplot(data = p, aes(x = as.numeric(k), y = p, group = variable, color = variable)) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(breaks = as.numeric(p$k), 
+                     trans = scales::log_trans()) +
+  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x),
+              labels = trans_format("log10", math_format(10^.x))) +
+  annotation_logticks() +
+  theme_bw(base_size = 15) +
+  guides(color = guide_legend( title = "degree type" ) ) +
+  ggtitle("Degree distribution (log scale)") +
+  xlab("k (ln)") + ylab("p (log10)")
+
+plot_grid(dd, ddp, labels = "auto", rel_widths = c(1, 2))
 ```
 
     ## Warning: Removed 8 rows containing missing values (geom_point).
 
     ## Warning: Removed 5 row(s) containing missing values (geom_path).
 
-![](06_analysis_CARNIVAL_results_files/figure-gfm/netcompare-3.png)<!-- -->
+    ## Warning: Removed 8 rows containing missing values (geom_point).
+
+    ## Warning: Removed 5 row(s) containing missing values (geom_path).
+
+![](06_analysis_CARNIVAL_results_files/figure-gfm/netopology-3.png)<!-- -->
+
+Generally speaking, biological networks are not dense, so don’t worry if
+the density values are low… they usually are\!
+
+The degree distribution is an interesting graphic to look at, as we can
+get some straigth information:
+
+  - k = 0 for in-degree indicates the proportion of initial nodes, while
+    for out-degree indicates the effectors (here the TFs). For
+    total-degree, that would indicate the presence of isolated nodes.
+
+  - Most of the nodes do not have many connections (e.g. k = 1 -\> p =
+    0.6), but there are a few that are highly connected (e.g. k \> 6).
+
+  - We can find some hubs when k is higher (plot B). The out-degree ends
+    at k = 5; this means that the bigest regulatory-hub regulates upmost
+    5 other nodes. In a simmilar way, the in-degree goes up to k = 9;
+    This means that there are few hubs (k \> 5) that are regulated by
+    upmost 9 nodes.
+
+# Network comparison
+
+When we have more than 1 network, we usually would like to know how
+(dis)similar these networks are.
 
 ## Session Info Details
 
@@ -249,13 +301,14 @@ ggplot(data = p, aes(x = as.factor(k), y = value, group= variable, color = varia
     ## [8] methods   base     
     ## 
     ## other attached packages:
-    ##  [1] snowfall_1.84-6.1    snow_0.4-3           reshape2_1.4.4      
-    ##  [4] network_1.16.0       GSEABase_1.50.1      graph_1.66.0        
-    ##  [7] annotate_1.66.0      XML_3.99-0.5         AnnotationDbi_1.50.3
-    ## [10] IRanges_2.22.2       S4Vectors_0.26.1     Biobase_2.48.0      
-    ## [13] BiocGenerics_0.34.0  plyr_1.8.6           tidyr_1.1.1         
-    ## [16] tibble_3.0.3         ggplot2_3.3.2        dplyr_1.0.1         
-    ## [19] piano_2.4.0          readr_1.3.1         
+    ##  [1] snowfall_1.84-6.1    snow_0.4-3           cowplot_1.0.0       
+    ##  [4] reshape2_1.4.4       network_1.16.0       GSEABase_1.50.1     
+    ##  [7] graph_1.66.0         annotate_1.66.0      XML_3.99-0.5        
+    ## [10] AnnotationDbi_1.50.3 IRanges_2.22.2       S4Vectors_0.26.1    
+    ## [13] Biobase_2.48.0       BiocGenerics_0.34.0  plyr_1.8.6          
+    ## [16] scales_1.1.1         tidyr_1.1.1          tibble_3.0.3        
+    ## [19] ggplot2_3.3.2        dplyr_1.0.1          piano_2.4.0         
+    ## [22] readr_1.3.1         
     ## 
     ## loaded via a namespace (and not attached):
     ##  [1] bitops_1.0-6         bit64_4.0.2          tools_4.0.2         
@@ -263,23 +316,23 @@ ggplot(data = p, aes(x = as.factor(k), y = value, group= variable, color = varia
     ##  [7] DBI_1.1.0            colorspace_1.4-1     withr_2.2.0         
     ## [10] tidyselect_1.1.0     gridExtra_2.3        bit_4.0.4           
     ## [13] compiler_4.0.2       shinyjs_1.1          labeling_0.3        
-    ## [16] slam_0.1-47          caTools_1.18.0       scales_1.1.1        
-    ## [19] relations_0.6-9      stringr_1.4.0        digest_0.6.25       
-    ## [22] rmarkdown_2.3        pkgconfig_2.0.3      htmltools_0.5.0     
-    ## [25] fastmap_1.0.1        limma_3.44.3         htmlwidgets_1.5.1   
-    ## [28] rlang_0.4.7          RSQLite_2.2.0        shiny_1.5.0         
-    ## [31] farver_2.0.3         visNetwork_2.0.9     generics_0.0.2      
-    ## [34] jsonlite_1.7.0       BiocParallel_1.22.0  gtools_3.8.2        
-    ## [37] RCurl_1.98-1.2       magrittr_1.5         Matrix_1.2-18       
-    ## [40] Rcpp_1.0.5           munsell_0.5.0        lifecycle_0.2.0     
-    ## [43] stringi_1.4.6        yaml_2.2.1           gplots_3.0.4        
-    ## [46] grid_4.0.2           blob_1.2.1           gdata_2.18.0        
-    ## [49] promises_1.1.1       shinydashboard_0.7.1 crayon_1.3.4        
-    ## [52] lattice_0.20-41      hms_0.5.3            knitr_1.29          
-    ## [55] pillar_1.4.6         fgsea_1.14.0         igraph_1.2.5        
-    ## [58] marray_1.66.0        fastmatch_1.1-0      glue_1.4.1          
-    ## [61] evaluate_0.14        data.table_1.13.0    vctrs_0.3.2         
-    ## [64] httpuv_1.5.4         gtable_0.3.0         purrr_0.3.4         
-    ## [67] xfun_0.16            mime_0.9             xtable_1.8-4        
-    ## [70] later_1.1.0.1        memoise_1.1.0        sets_1.0-18         
-    ## [73] cluster_2.1.0        ellipsis_0.3.1
+    ## [16] slam_0.1-47          caTools_1.18.0       relations_0.6-9     
+    ## [19] stringr_1.4.0        digest_0.6.25        rmarkdown_2.3       
+    ## [22] pkgconfig_2.0.3      htmltools_0.5.0      fastmap_1.0.1       
+    ## [25] limma_3.44.3         htmlwidgets_1.5.1    rlang_0.4.7         
+    ## [28] RSQLite_2.2.0        shiny_1.5.0          farver_2.0.3        
+    ## [31] visNetwork_2.0.9     generics_0.0.2       jsonlite_1.7.0      
+    ## [34] BiocParallel_1.22.0  gtools_3.8.2         RCurl_1.98-1.2      
+    ## [37] magrittr_1.5         Matrix_1.2-18        Rcpp_1.0.5          
+    ## [40] munsell_0.5.0        lifecycle_0.2.0      stringi_1.4.6       
+    ## [43] yaml_2.2.1           gplots_3.0.4         grid_4.0.2          
+    ## [46] blob_1.2.1           gdata_2.18.0         promises_1.1.1      
+    ## [49] shinydashboard_0.7.1 crayon_1.3.4         lattice_0.20-41     
+    ## [52] hms_0.5.3            knitr_1.29           pillar_1.4.6        
+    ## [55] fgsea_1.14.0         igraph_1.2.5         marray_1.66.0       
+    ## [58] fastmatch_1.1-0      glue_1.4.1           evaluate_0.14       
+    ## [61] data.table_1.13.0    vctrs_0.3.2          httpuv_1.5.4        
+    ## [64] gtable_0.3.0         purrr_0.3.4          xfun_0.16           
+    ## [67] mime_0.9             xtable_1.8-4         later_1.1.0.1       
+    ## [70] memoise_1.1.0        sets_1.0-18          cluster_2.1.0       
+    ## [73] ellipsis_0.3.1
