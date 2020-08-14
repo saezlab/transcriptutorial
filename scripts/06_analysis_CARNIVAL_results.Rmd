@@ -1,7 +1,7 @@
 ---
 title: "06_analysis_CARNIVAL_results"
 author: "Rosa Hernansaiz-Ballesteros"
-date: "18/07/2020"
+date: "14/08/2020"
 output: 
   github_document: default
 ---
@@ -64,7 +64,7 @@ library(ggplot2)
 library(tibble)
 library(tidyr)
 library(dplyr)
-library(ggplot2)
+library(scales)
 library(plyr)
 library(GSEABase)
 library(network)
@@ -134,9 +134,8 @@ ggplot(PathwaysSelect, aes(x = reorder(pathway, pvalue),
 
 ```
 
-# Network comparison
+# Topological measurments
 
-When we have more than 1 network, we usually would like to know how (dis)similar these networks are.
 We can get a sense of the size of the reconstructed networks using topological parameters, such as number of edges and nodes.
 We can also have a look at the network's density and the *degree distribution*.
 The *density* indicates the proportion of interactions that exisit in our network when comparing with all posible interactions that can be stablished. 
@@ -147,8 +146,12 @@ NOTE: Here the density is calculated for a _direct graph_.
 As CARNIVAL can repot 2 interactions between the same 2 nodes with different sign, 
 these "doubled" interactions are excluded when calculating the density.
 
+To know more about this topic:
 
-```{r netcompare, message=FALSE}
++ https://mathinsight.org/degree_distribution
++ https://www.networksciencebook.com/chapter/2#degree
+
+```{r netopology, message=FALSE}
 
 # get only summary files from CARNIVAL results
 sifts = lapply(carnival_sample_resolution, function(x){x$weightedSIF})
@@ -167,8 +170,9 @@ p = merge.data.frame(p, data.frame(table(count_degree$in_count) / nrow(count_deg
 colnames(p) = c("Var1", "total_degree", "in_degree")
 p = merge.data.frame(p, data.frame(table(count_degree$out_count) / nrow(count_degree)), all = T)
 colnames(p) = c("k", "total_degree", "in_degree", "out_degree")
-p = melt(p)
+p = melt(p, value.name = "p", id.vars = "k")
 p$k = relevel(p$k, "0")
+
 #visualize
 ggdat = as.data.frame(node_edge) %>% tibble::rownames_to_column(var = "sample") %>%
   dplyr::mutate(condition = gsub(".Rep[0-9]{1}", "", sample))
@@ -196,13 +200,52 @@ ggplot(ggdat, aes(x = density, y = sample, fill = as.factor(condition) )) +
 
 # degree distribution
 
-ggplot(data = p, aes(x = as.factor(k), y = value, group= variable, color = variable)) +
+dd <- ggplot(data = p, aes(x = k, y = p, group = variable, color = variable)) +
   geom_point() +
-  geom_line()  +
+  geom_line() +
   theme_bw(base_size = 15) +
-  guides(color = guide_legend( title="degree type" ) ) +
+  guides(color = guide_legend( title = "degree type" ) ) +
   ggtitle("Degree distribution")
 
+ddp <- ggplot(data = p, aes(x = as.numeric(k), y = p, group = variable, color = variable)) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(breaks = as.numeric(p$k), 
+                     trans = scales::log_trans()) +
+  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x),
+              labels = trans_format("log10", math_format(10^.x))) +
+  annotation_logticks() +
+  theme_bw(base_size = 15) +
+  guides(color = guide_legend( title = "degree type" ) ) +
+  ggtitle("Degree distribution (log scale)") +
+  xlab("k (ln)") + ylab("p (log10)")
+
+plot_grid(dd, ddp, labels = "auto")
+
+```
+
+Generally speaking, biological networks are not dense, so don't worry if the density values are low... they usually are!
+
+The degree distribution is an interesting graphic to look at, as we can get some straigth information:
+
++ k = 0 for in-degree indicates the proportion of initial nodes, 
+while for out-degree indicates the effectors (here the TFs). 
+For total-degree, that would indicate the presence of isolated nodes.
+
++ Most of the nodes do not have many connections (e.g. k = 1 -> p = 0.6), 
+but there are a few that are highly connected (e.g. k > 6).
+
++ We can find some hubs when k is higher (plot B). The out-degree ends at k = 5; 
+this means that the bigest regulatory-hub regulates upmost 5 other nodes.
+In a simmilar way, the in-degree goes up to k = 9;
+This means that there are few hubs (k > 5) that are regulated by upmost 9 nodes.
+
+# Network comparison
+
+When we have more than 1 network, we usually would like to know how (dis)similar these networks are.
+
+
+```{r netcompare, message=FALSE}
 ```
 
 ## Session Info Details
