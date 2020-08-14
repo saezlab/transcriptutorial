@@ -69,6 +69,9 @@ library(GSEABase)
 library(network)
 library(reshape2)
 library(cowplot)
+library(pheatmap)
+library(ggraph)
+library(tidygraph)
 
 # set working directory
 setwd("/Users/rosherbal/Projects/transcriptutorial/scripts")
@@ -82,6 +85,7 @@ source("support_networks.r")
 #read CARNIVAL results
 carnival_result = readRDS("../results/carnival_result.rds")
 carnival_sample_resolution = readRDS("../results/carnival_sample_resolution.rds")
+pkn = read_tsv("../results/omnipath_carnival.tsv")
 ```
 
 # Enrichment Analysis
@@ -283,6 +287,74 @@ get some straigth information:
 When we have more than 1 network, we usually would like to know how
 (dis)similar these networks are.
 
+We can use the *Jaccard Index* to measure similarities and diversity
+between sample sets (<https://en.wikipedia.org/wiki/Jaccard_index>).
+This index can be used in different scenarios. Generally, it’s used with
+the nodes, but we can also use it with the edges.
+
+When we have groups, in our case WT and FOXA2KO, we can also extract the
+interactions that are common.
+
+``` r
+# create a matrix of all interactions for all samples
+
+interactions = getTopology(networks = sifts, scafoldNET = pkn)
+```
+
+    ##   |                                                                              |                                                                      |   0%  |                                                                              |============                                                          |  17%  |                                                                              |=======================                                               |  33%  |                                                                              |===================================                                   |  50%  |                                                                              |===============================================                       |  67%  |                                                                              |==========================================================            |  83%  |                                                                              |======================================================================| 100%
+
+``` r
+# get the edges per sample
+net_int = apply(interactions, 2, function(x, r){
+  r[which(!is.na(x))]
+}, rownames(interactions))
+
+# calcualte jaccard indexes per pairs
+combined = expand.grid(1:length(names(sifts)), 1:length(names(sifts)))
+jac_index = matrix(data = NA, nrow = length(names(sifts)), ncol = length(names(sifts)),
+                   dimnames = list(names(sifts), names(sifts)))
+
+for (i in 1:nrow(combined)){
+  n = names(sifts)[combined[i,1]]
+  m = names(sifts)[combined[i,2]]
+  jac_index[n,m] = length( intersect(net_int[[n]], net_int[[m]]) ) / length( union(net_int[[n]], net_int[[m]]) )
+}
+
+# Visualize the indexes in a headmap
+
+pheatmap::pheatmap(jac_index,fontsize=14, 
+           fontsize_row = 10, fontsize_col = 10, 
+           angle_col = 45, treeheight_col = 0)
+```
+
+![](06_analysis_CARNIVAL_results_files/figure-gfm/netcompare-1.png)<!-- -->
+
+``` r
+# Get common interactions in a group
+
+shared_interactions_WT = getCoreInteractions(topology = interactions[,1:3], psmpl = 100)
+```
+
+    ## 38 interactions found in at least 3 samples out of 3
+
+``` r
+# Visualize the interactions
+colnames(shared_interactions_WT) = c("from", "sign", "to")
+labels_edge = c("-1" = "inhibition", "1" = "activation")
+nodes = data.frame(union(shared_interactions_WT$from, shared_interactions_WT$to))
+colnames(nodes) = "nodes"
+nodes$label = nodes$nodes
+
+tidygraph::tbl_graph(nodes = nodes, edges = shared_interactions_WT) %>%
+    ggraph::ggraph(layout = "nicely") + 
+    geom_node_point(color = "#C0C0C0", size = 8) +
+    geom_edge_link(arrow = arrow(), aes(edge_colour=as.factor(sign))) +
+    theme_graph() +
+   geom_node_text(aes(label = label), vjust = 0.4)
+```
+
+![](06_analysis_CARNIVAL_results_files/figure-gfm/netcompare-2.png)<!-- -->
+
 ## Session Info Details
 
     ## R version 4.0.2 (2020-06-22)
@@ -301,38 +373,42 @@ When we have more than 1 network, we usually would like to know how
     ## [8] methods   base     
     ## 
     ## other attached packages:
-    ##  [1] snowfall_1.84-6.1    snow_0.4-3           cowplot_1.0.0       
-    ##  [4] reshape2_1.4.4       network_1.16.0       GSEABase_1.50.1     
-    ##  [7] graph_1.66.0         annotate_1.66.0      XML_3.99-0.5        
-    ## [10] AnnotationDbi_1.50.3 IRanges_2.22.2       S4Vectors_0.26.1    
-    ## [13] Biobase_2.48.0       BiocGenerics_0.34.0  plyr_1.8.6          
-    ## [16] scales_1.1.1         tidyr_1.1.1          tibble_3.0.3        
-    ## [19] ggplot2_3.3.2        dplyr_1.0.1          piano_2.4.0         
-    ## [22] readr_1.3.1         
+    ##  [1] snowfall_1.84-6.1    snow_0.4-3           tidygraph_1.2.0     
+    ##  [4] ggraph_2.0.3         pheatmap_1.0.12      cowplot_1.0.0       
+    ##  [7] reshape2_1.4.4       network_1.16.0       GSEABase_1.50.1     
+    ## [10] graph_1.66.0         annotate_1.66.0      XML_3.99-0.5        
+    ## [13] AnnotationDbi_1.50.3 IRanges_2.22.2       S4Vectors_0.26.1    
+    ## [16] Biobase_2.48.0       BiocGenerics_0.34.0  plyr_1.8.6          
+    ## [19] scales_1.1.1         tidyr_1.1.1          tibble_3.0.3        
+    ## [22] ggplot2_3.3.2        dplyr_1.0.1          piano_2.4.0         
+    ## [25] readr_1.3.1         
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] bitops_1.0-6         bit64_4.0.2          tools_4.0.2         
-    ##  [4] R6_2.4.1             DT_0.15              KernSmooth_2.23-17  
-    ##  [7] DBI_1.1.0            colorspace_1.4-1     withr_2.2.0         
-    ## [10] tidyselect_1.1.0     gridExtra_2.3        bit_4.0.4           
-    ## [13] compiler_4.0.2       shinyjs_1.1          labeling_0.3        
-    ## [16] slam_0.1-47          caTools_1.18.0       relations_0.6-9     
-    ## [19] stringr_1.4.0        digest_0.6.25        rmarkdown_2.3       
-    ## [22] pkgconfig_2.0.3      htmltools_0.5.0      fastmap_1.0.1       
-    ## [25] limma_3.44.3         htmlwidgets_1.5.1    rlang_0.4.7         
-    ## [28] RSQLite_2.2.0        shiny_1.5.0          farver_2.0.3        
-    ## [31] visNetwork_2.0.9     generics_0.0.2       jsonlite_1.7.0      
-    ## [34] BiocParallel_1.22.0  gtools_3.8.2         RCurl_1.98-1.2      
-    ## [37] magrittr_1.5         Matrix_1.2-18        Rcpp_1.0.5          
-    ## [40] munsell_0.5.0        lifecycle_0.2.0      stringi_1.4.6       
-    ## [43] yaml_2.2.1           gplots_3.0.4         grid_4.0.2          
-    ## [46] blob_1.2.1           gdata_2.18.0         promises_1.1.1      
-    ## [49] shinydashboard_0.7.1 crayon_1.3.4         lattice_0.20-41     
-    ## [52] hms_0.5.3            knitr_1.29           pillar_1.4.6        
-    ## [55] fgsea_1.14.0         igraph_1.2.5         marray_1.66.0       
-    ## [58] fastmatch_1.1-0      glue_1.4.1           evaluate_0.14       
-    ## [61] data.table_1.13.0    vctrs_0.3.2          httpuv_1.5.4        
-    ## [64] gtable_0.3.0         purrr_0.3.4          xfun_0.16           
-    ## [67] mime_0.9             xtable_1.8-4         later_1.1.0.1       
-    ## [70] memoise_1.1.0        sets_1.0-18          cluster_2.1.0       
-    ## [73] ellipsis_0.3.1
+    ##  [1] bitops_1.0-6         bit64_4.0.2          RColorBrewer_1.1-2  
+    ##  [4] tools_4.0.2          R6_2.4.1             DT_0.15             
+    ##  [7] KernSmooth_2.23-17   DBI_1.1.0            colorspace_1.4-1    
+    ## [10] withr_2.2.0          tidyselect_1.1.0     gridExtra_2.3       
+    ## [13] bit_4.0.4            compiler_4.0.2       shinyjs_1.1         
+    ## [16] labeling_0.3         slam_0.1-47          caTools_1.18.0      
+    ## [19] relations_0.6-9      stringr_1.4.0        digest_0.6.25       
+    ## [22] rmarkdown_2.3        pkgconfig_2.0.3      htmltools_0.5.0     
+    ## [25] fastmap_1.0.1        limma_3.44.3         htmlwidgets_1.5.1   
+    ## [28] rlang_0.4.7          RSQLite_2.2.0        shiny_1.5.0         
+    ## [31] farver_2.0.3         visNetwork_2.0.9     generics_0.0.2      
+    ## [34] jsonlite_1.7.0       BiocParallel_1.22.0  gtools_3.8.2        
+    ## [37] RCurl_1.98-1.2       magrittr_1.5         Matrix_1.2-18       
+    ## [40] Rcpp_1.0.5           munsell_0.5.0        viridis_0.5.1       
+    ## [43] lifecycle_0.2.0      stringi_1.4.6        yaml_2.2.1          
+    ## [46] MASS_7.3-51.6        gplots_3.0.4         grid_4.0.2          
+    ## [49] blob_1.2.1           ggrepel_0.8.2        gdata_2.18.0        
+    ## [52] promises_1.1.1       shinydashboard_0.7.1 crayon_1.3.4        
+    ## [55] lattice_0.20-41      graphlayouts_0.7.0   hms_0.5.3           
+    ## [58] knitr_1.29           pillar_1.4.6         fgsea_1.14.0        
+    ## [61] igraph_1.2.5         marray_1.66.0        fastmatch_1.1-0     
+    ## [64] glue_1.4.1           evaluate_0.14        data.table_1.13.0   
+    ## [67] tweenr_1.0.1         vctrs_0.3.2          httpuv_1.5.4        
+    ## [70] polyclip_1.10-0      gtable_0.3.0         purrr_0.3.4         
+    ## [73] ggforce_0.3.2        xfun_0.16            mime_0.9            
+    ## [76] xtable_1.8-4         later_1.1.0.1        viridisLite_0.3.0   
+    ## [79] memoise_1.1.0        sets_1.0-18          cluster_2.1.0       
+    ## [82] ellipsis_0.3.1
