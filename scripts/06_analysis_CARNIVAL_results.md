@@ -136,17 +136,37 @@ PathwaysSelect <- sig_pathways_df %>%
     dplyr::rename(pvalue = `p-value`, AdjPvalu = `Adjusted p-value`) %>% 
     dplyr::mutate(pathway = as.factor(pathway))
 
+PathwaysSelect <- data.frame(t(apply(PathwaysSelect, 1, function(r){
+  aux = unlist(strsplit( sub("_",";", r["pathway"]), ";" ))
+  r["pathway"] = gsub("_", " ", aux[2])
+  return(c(r, "source" = aux[1]))
+})))
+
+colnames(PathwaysSelect) = c("pathway", "pvalue", "AdjPvalu", "source")
+PathwaysSelect$AdjPvalu = as.numeric(PathwaysSelect$AdjPvalu)
+
+ggdata = PathwaysSelect %>% 
+    dplyr::filter(AdjPvalu <= 0.05) %>% 
+    dplyr::group_by(source) %>% 
+    dplyr::arrange(AdjPvalu) %>%
+    dplyr::slice(1:5)
+
+  
 # Visualize top results
-ggplot(PathwaysSelect, aes(x = reorder(pathway, pvalue), 
-            y = -log10(pvalue))) + 
+ggplot(ggdata, aes(y = reorder(pathway, AdjPvalu), x = -log10(AdjPvalu)), color = source) + 
         geom_bar(stat = "identity") +
-        scale_fill_gradient2(low = "darkblue", high = "indianred", 
-            mid = "whitesmoke", midpoint = 0) + 
-        coord_flip() +
-        theme_minimal() +
-        theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank()) + 
-        xlab("")
+        facet_grid(source ~ ., scales="free_y") +
+        scale_x_continuous(
+                         expand = c(0.01, 0.01),
+                         limits = c(0, ceiling(max(-log10(PathwaysSelect$AdjPvalu)))),
+                         breaks = seq(floor(min(-log10(PathwaysSelect$AdjPvalu))), ceiling(max(-log10(PathwaysSelect$AdjPvalu))), 1),
+                         labels = math_format(10^-.x)
+                         ) +
+        annotation_logticks(sides = "bt") +
+        theme_bw() +
+        theme(axis.title = element_text(face = "bold", size = 12),
+              axis.text.y = element_text(size = 6)) +
+        ylab("")
 ```
 
 ![](06_analysis_CARNIVAL_results_files/figure-gfm/enrichment-1.png)<!-- -->
@@ -380,7 +400,7 @@ tidygraph::tbl_graph(nodes = nodes, edges = shared_interactions_WT) %>%
     ## [13] AnnotationDbi_1.50.3 IRanges_2.22.2       S4Vectors_0.26.1    
     ## [16] Biobase_2.48.0       BiocGenerics_0.34.0  plyr_1.8.6          
     ## [19] scales_1.1.1         tidyr_1.1.1          tibble_3.0.3        
-    ## [22] ggplot2_3.3.2        dplyr_1.0.1          piano_2.4.0         
+    ## [22] ggplot2_3.3.2        dplyr_1.0.2          piano_2.4.0         
     ## [25] readr_1.3.1         
     ## 
     ## loaded via a namespace (and not attached):
