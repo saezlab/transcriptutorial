@@ -1,3 +1,5 @@
+![alt text](https://github.com/saezlab/transcriptutorial/blob/master/transcriptuto_logo.001.png?raw=true)
+
 # transcriptutorial
 This is a tutorial to guide the analysis of RNAseq dataset using footprint based tools such as DOROTHEA, PROGENY and CARNIVAL
 
