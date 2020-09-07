@@ -24,7 +24,7 @@ Please check http://www.gnu.org/licenses/.
 
 ## Introduction
 
-Here we present examples of normalisation strategies of omic dataset, using RNAseq for the present case.
+In the first part of our series of transcriptomics tutorials, we present an example normalisation strategy for omic datasets, using RNAseq data for the present case.
 
 ## Getting Started
 
@@ -49,23 +49,27 @@ source("support_functions.R")
 ```
 
 ### Import the raw count dataframe
-downloaded from https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE119931
-download the file : GSE119931_PANC1.FOXA2KO.genes.counts.txt.gz and decompress 
-it in the data folder
+The data can be downloaded from: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE119931
+Download the file: GSE119931_PANC1.FOXA2KO.genes.counts.txt.gz and decompress 
+it inside the 'data' folder.
 
 ```{r}
 ## Raw counts table
 GSE119931_PANC1_FOXA2KO_genes_counts <- as.data.frame(
   read_delim("../data/GSE119931_PANC1.FOXA2KO.genes.counts.txt", 
              "\t", escape_double = FALSE, trim_ws = TRUE)) 
+```
 
+The row names give the Ensembl IDs for the genes and the column names give information about the condition and sample from which the data was measured. For our analysis, we extract relevant columns from the raw counts table.
+
+```{r}
 count_df <- GSE119931_PANC1_FOXA2KO_genes_counts[,c(7:12)]
 row.names(count_df) <- GSE119931_PANC1_FOXA2KO_genes_counts$Geneid
 ```
 
 ### Pre-processing and normalisation
 
-First create a dataframe to summarise experimental design called targets
+First create a dataframe `targets` to summarise the experimental design. We extract the condition information from the original column names.
 
 ```{r}
 targets <- as.data.frame(matrix(NA,length(names(count_df)),2))
@@ -74,8 +78,8 @@ targets$sample <- names(count_df)
 targets$condition <- gsub(".Rep[0-9]$","",targets$sample)
 ```
 
-Make some plots to check what the data looks like after only a log2
-transformation
+We make some plots to check what the data looks like after just a log2
+transformation (no normalisation)
 
 ```{r}
 #First we remove rows that contain only 0
@@ -91,14 +95,18 @@ plot(plots[[1]]) #violins
 plot(plots[[2]]) #PCA
 ```
 
-From the violin plot, we can see that the distributions are bimodal. Usually this is because a lots of genes are expressed under the RNAseq detection threshold and will give rise to a noisy sub-distribution. We want to get rid of those reads, so based on the violin plot, we decide to exclude any transcript with less that 4 log2(counts).
+From the violin plot, we can see that the distributions are bimodal. Usually
+this is because a lots of genes are expressed under the RNAseq detection
+threshold and will give rise to a noisy sub-distribution. We want to get rid of
+those reads, so based on the violin plot, we decide to exclude any transcript
+with less that 4 log2(counts).
 
-Usually, A cleaned up dataframe wil have roughly between 9000 and 15000 measured genes.
+Usually, a cleaned-up dataframe will have roughly between 9000 and 15000 measured genes.
 
 ```{r}
 count_df[log2(count_df) < 4 ] <- NA
 
-#remove rows that don't have enough well measured genes in enough samples
+#remove rows (genes) which aren't well-measured in enough samples
 count_df <- count_df[rowSums(is.na(count_df[,c(1:3)])) < 2,]
 count_df <- count_df[rowSums(is.na(count_df[,c(4:6)])) < 2,]
 ```
@@ -117,7 +125,7 @@ count_df_vsn <- as.data.frame(vsn::predict(fit,as.matrix(count_df)))
 
 ```
 
-We want to avoid finding big fragmentated clusters of points in the means/sd plot. Here it looks pretty good so we can move forward.
+We want to avoid finding big fragmented clusters of points in the means/sd plot. Here it looks pretty good so we can move forward.
 
 ```{r}
 #now let's visualise the normalised data
@@ -126,19 +134,14 @@ plot(plots[[1]]) #violins
 plot(plots[[2]]) #PCA
 ```
 
-from PCA, we see that conditions are well seprated by 2nd component. So it's ok, we will have some signal.
+From PCA, we see that conditions are well separated by the 2nd component. So it's ok, we will have some signal.
 
-### Identifier kung-fu (optional)
-since here with have ensembl id but most our ressources are based on either 
-uniprot or gene symbole
+### Identifier Kung-Fu (optional)
 
-we need to do some identifer kung-fu
+Since currently our dataset uses Ensembl IDs, but most of our resources are based on UniProt or gene symbols, we need to do some identifier Kung-Fu!
 
 ```{r}
-#since here with have ensembl id but most our ressources are based on either uniprot or gene symbole
-#we need to do some identifer kung-fu
-
-#I got this identifer matching dataframe from uniprot
+#this identifier matching dataframe was retrieved from uniprot:
 gene_id_mapping_from_uniprot <- as.data.frame(
   read_delim("../support/gene_id_mapping_from_uniprot.tab", 
              "\t", escape_double = FALSE, trim_ws = TRUE))

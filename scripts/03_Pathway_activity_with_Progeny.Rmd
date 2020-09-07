@@ -24,7 +24,7 @@ Please check http://www.gnu.org/licenses/.
 
 ## Introduction
 
-We present here how to estimate pathway activity from transcriptomics 
+This is the third part in a series of transcriptomics tutorials. We present here how to estimate pathway activity from transcriptomics 
 data using **PROGENy**. 
 
 Conventional pathway analysis methods rely on the gene expression of the pathway 
@@ -65,7 +65,7 @@ In addition, we read the results from the previous scripts:
 
 + Normalised transcriptomics data from (01_normalisation.Rmd)
 + Differential expression analysis results (02_differential_analysis.Rmd). 
-In this particular case, a top table results objects from limma. 
+In this particular case, a top table results object from limma. 
 
 ```{r loadInput, message=FALSE}
 ## We read the normalised counts and the experimental design 
@@ -76,8 +76,8 @@ Experimental_design <- read_csv("../support/targets.csv")
 ttop_KOvsWT <- read_csv("../results/ttop_KOvsWT.csv")
 ```
 
-We have to slighly modify the format of the input files to make it suitable
-to run Progeny. 
+We have to slightly modify the format of the input files to make it suitable
+for running Progeny. 
 
 ```{r}
 Normalised_counts_matrix <- Normalised_counts %>% 
@@ -95,8 +95,8 @@ ttop_KOvsWT_matrix <- ttop_KOvsWT %>%
 
 ## Pathway activity with Progeny
 
-We first compute **Progeny** scores per every sample (with the replicates) 
-using the normalised counts. It is to note, that we are going to use the 100
+We first compute **Progeny** scores for every sample (with the replicates) 
+using the normalised counts. It is worth noting that we are going to use the 100
 most responsive genes per pathway. This number can be increased depending on 
 the coverage of your experiments. For instance, the number of quantified genes
 for single-cell RNA-seq is smaller than for Bulk RNA-seq or microarray. In those
@@ -130,7 +130,7 @@ progeny_hmap <- pheatmap(t(PathwayActivity_counts),fontsize=14,
 
 
 Now, we run an enrichment analysis using a competitive permutation approach to 
-asses the significance of the pathway activity. 
+assess the significance of the pathway activity. We end up with Normalised Enrichment Scores (NES) for each pathway.
 
 ```{r ProgenyStat, message=FALSE}
 PathwayActivity_zscore <- progeny(ttop_KOvsWT_matrix, 
@@ -161,7 +161,7 @@ ggplot(PathwayActivity_zscore_df,aes(x = reorder(Pathway, NES), y = NES)) +
 
 The MAPK pathway is the most active pathway upon the perturbation that we 
 are studying (KO of the FOXA2 gene versus the wild-type). We can therefore 
-visualise the MAPK most responsve genes (progeny weights) along with their 
+visualise the MAPK most responsive genes (progeny weights) along with their 
 t_values to interpret the results. In the scatterplot, we can see the genes
 that are contributing the most to the pathway enrichment. 
 
@@ -184,10 +184,9 @@ plot(scat_plots[[1]]$`MAPK`)
 ```
 
 Progeny results can be used as an optional input for **CARNIVAL**. CARNIVAL
-set weights based on **PROGENy** scores in each pathway-related nodes in order
-to find more relevant solutions. We therefore run **Progeny** again with 
-slighly different parameters, since we need pathway activity values between
-1 and -1. 
+sets weights based on **PROGENy** scores in each pathway-related node in order
+to find more relevant solutions. We therefore run **PROGENy** again with 
+slightly different parameters, setting `z_scores = FALSE` so that **PROGENy** returns pathway activity values between 1 and -1, rather than converting to Z-Scores.
 
 ```{r ProgenyCARNIVAL}
 PathwayActivity_CARNIVALinput <- progeny(ttop_KOvsWT_matrix, 

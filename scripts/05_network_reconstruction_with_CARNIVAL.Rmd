@@ -25,19 +25,22 @@ Please check http://www.gnu.org/licenses/.
 
 ## Introduction
 
-CARNIVAL (CAusal Reasoning for Network identification using Integer VALue programming) 
-is a method for the identification of upstream reguatory signalling pathways 
-from downstream gene expression (GEX) 
-[(Liu, Trairatphisan, Gjerga et al. 2019)](https://doi.org/10.1038/s41540-019-0118-z).
-The aim of CARNIVAL is to identify a subset of interactions from a prior knowledge network,
-a network that represents potential regulated pathways linking known or potential targets of perturbation,
-towards active transcription factors derived from GEX data.
+**CARNIVAL** (CAusal Reasoning for Network identification using Integer VALue
+programming) is a method for the identification of upstream regulatory
+signalling pathways from downstream gene expression (GEX) [(Liu, Trairatphisan,
+Gjerga et al. 2019)](https://doi.org/10.1038/s41540-019-0118-z). The aim of
+**CARNIVAL** is to identify a subset of interactions from a prior knowledge
+network, a network that represents potential regulated pathways linking known or
+potential targets of perturbation, to active transcription factors derived
+from GEX data.
 
-We present here how to use CARNIVAL based on the
-transcription factor (TF) activity derived from transcriptomics data using **DoRothEA** 
-[(Garcia-Alonso et al. 2019)](https://doi.org/10.1101/gr.240663.118), and
-the prior knowledge network obtained from [**Omnipath**](http://omnipathdb.org/),
-a literature curated mammalian signaling pathway resource [(Türei et al 2016)](https://www.nature.com/articles/nmeth.4077).
+In the fifth part of our transcriptomics tutorial series, we demonstrate how to
+use **CARNIVAL** based on the transcription factor (TF) activity derived from
+transcriptomics data using **DoRothEA** [(Garcia-Alonso et al.
+2019)](https://doi.org/10.1101/gr.240663.118), and the prior knowledge network
+obtained from [**Omnipath**](http://omnipathdb.org/), a literature curated
+mammalian signaling pathway resource [(Türei et al
+2016)](https://www.nature.com/articles/nmeth.4077).
 
 In order to help CARNIVAL to find a solution faster,
 we can also use **PROGENy** [(Schubert et al. 2018)](https://www.nature.com/articles/s41467-017-02391-6) scores
@@ -93,10 +96,10 @@ PathwayActivity <- read_csv("../results/PathwayActivity_CARNIVALinput.csv")
 ## Getting the scaffold network from Omnipath
 
 Before running **CARNIVAL**, we need to create or upload a scaffold network.
-This will be _"the map"_ that the IPL algorithm will follow to find the causal network.
+This will be _"the map"_ that the ILP algorithm will follow to find the causal network.
 We use **Omnipath** to obtain the signed and directed interactions from all the available resources.
-CARNIVAL requires this informacion in a _sif_ table (node1, interaction, node2) format,
-therefore, we use the _consensus_ columns of direction (consensus_direction) and
+CARNIVAL requires this information in a _sif_ table (node1, interaction, node2) format,
+therefore we use the _consensus_ columns of direction (consensus_direction) and
 sign (consensus_stimulation and consensus_inhibition) to extract it.
 
 The query returns 0/1 as logic status of being a stimulation or an inhibition reaction. 
@@ -181,7 +184,7 @@ The aim of _weightObj_ is helping the solver to find optimal solutions faster.
 In the present example, we use assign as perturbation nodes all the "initial" nodes (option 2),
 and as _weightObj_ the PROGENy scores assigned to the most representative genes of the calculated pathways,
 
-Please, check the FAQ file to get some more insights.
+Please, check the [CARNIVAL](https://saezlab.github.io/CARNIVAL/) page to get some more insight.
 
 ```{r carnival, message=FALSE}
 
@@ -209,7 +212,7 @@ CARNIVAL gives a list of 4 elements:
 + sifAll: networks of all the models
 + attributesAll: node attributes of all models
 
-We can visualise the network...
+We can now visualise the network...
 
 ```{r visNetwork1, message=FALSE, dpi=300}
 

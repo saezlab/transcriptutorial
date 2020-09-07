@@ -19,14 +19,15 @@ Please check <http://www.gnu.org/licenses/>.
 
 ## Introduction
 
-We present here how to estimate transcription factor (TF) activity from
+This is the fourth tutorial in a series of transcriptomics tutorials.
+Here, we present how to estimate transcription factor (TF) activity from
 transcriptomics data using **DoRothEA**.
 
 **DoRothEA** is a comprehensive resource containing a curated collection
-of TFs and its transcriptional targets. The set of genes regulated by a
-specific TF is known as regulon. **DoRothEA’s** regulons were gathered
+of TFs and their transcriptional targets. The set of genes regulated by
+a specific TF is known as regulon. **DoRothEA’s** regulons were gathered
 from different types of evidence. Each TF-target interaction is defined
-by a confidence level based on the number of supporting evidence. The
+by a confidence level based on the volume of supporting evidence. The
 confidence levels range from A (highest confidence) to E (lowest
 confidence) [(Garcia-Alonso et
 al. 2019)](https://doi.org/10.1101/gr.240663.118)
@@ -78,7 +79,7 @@ In addition, we read the results from the previous scripts:
   - Normalised transcriptomics data from (01\_normalisation.Rmd)
   - Differential expression analysis results
     (02\_differential\_analysis.Rmd). In this particular case, a top
-    table results objects from limma.
+    table results object from limma.
 
 <!-- end list -->
 
@@ -91,8 +92,8 @@ Experimental_design <- read_csv("../support/targets.csv")
 ttop_KOvsWT <- read_csv("../results/ttop_KOvsWT.csv")
 ```
 
-We have to slighly modify the format of the input files to make it
-suitable to run **DoRothEA**.
+We have to slightly modify the format of the input files to make them
+suitable for running **DoRothEA**.
 
 ``` r
 Normalised_counts_matrix <- Normalised_counts %>% 
@@ -120,17 +121,17 @@ regulons <- dorothea_hs %>%
   dplyr::filter(confidence %in% c("A", "B","C"))
 ```
 
-It is to note that for **DoRothEA**, we proceed the other way around
-than for **PROGENy**. We have many TFs so, we cannot clearly visualize
-all of them in the same heatmap. That is why, we first compute a TF
-activity enrichment analysis using the statistcs from the differential
+Note that for **DoRothEA**, we proceed the other way around than for
+**PROGENy**. We have many TFs, so we cannot clearly visualize all of
+them in the same heatmap. That is why we first compute a TF activity
+enrichment analysis using the statistics from the differential
 expression analysis. This will allow us to select the TFs whose activity
-varies the conditions under study.
+varies with the conditions under study.
 
 It is important to set the parameter `eset.filter` to `FALSE`. In this
-case, we set the minimun size of regulons to five (`minsize`). I
-strongly recommend to check `?viper` to set the parameters that best
-fits your needs.
+case, we set the minimum size of regulons to five (`minsize`). I
+strongly recommend to check `?viper` to set the parameters that best fit
+your needs.
 
 ``` r
 tf_activities_stat <- dorothea::run_viper(ttop_KOvsWT_matrix, regulons,
@@ -190,9 +191,9 @@ tf_activities_CARNIVALinput<- tf_activities_stat %>%
 write_csv(tf_activities_CARNIVALinput, "../results/TFActivity_CARNIVALinput.csv")
 ```
 
-We now compute TFs activities per every sample (with the replicates)
-using the normalised counts. We display the results of the previous 25
-TFs in a Heatmap.
+We now compute TF activities per sample (with the replicates) using the
+normalised counts. We display the results of the previous 25 TFs in a
+Heatmap.
 
 ``` r
 tf_activities_counts <- 
@@ -250,46 +251,41 @@ dorothea_hmap <- pheatmap(tf_activities_counts_filter,
 
 ## Session Info Details
 
-    ## R version 4.0.0 (2020-04-24)
-    ## Platform: x86_64-pc-linux-gnu (64-bit)
-    ## Running under: Ubuntu 19.10
+    ## R version 4.0.2 (2020-06-22)
+    ## Platform: x86_64-apple-darwin17.0 (64-bit)
+    ## Running under: macOS Catalina 10.15.4
     ## 
     ## Matrix products: default
-    ## BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
-    ## LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.3.7.so
+    ## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+    ## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
     ## 
     ## locale:
-    ##  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
-    ##  [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8    
-    ##  [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8   
-    ##  [7] LC_PAPER=en_GB.UTF-8       LC_NAME=C                 
-    ##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-    ## [11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
+    ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
     ## 
     ## attached base packages:
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ## [1] ggrepel_0.8.2   readr_1.3.1     pheatmap_1.0.12 ggplot2_3.3.0  
-    ## [5] dplyr_0.8.5     tidyr_1.0.3     tibble_3.0.1    dorothea_1.0.0 
+    ## [1] ggrepel_0.8.2   readr_1.3.1     pheatmap_1.0.12 ggplot2_3.3.2  
+    ## [5] dplyr_1.0.2     tidyr_1.1.2     tibble_3.0.3    dorothea_1.0.1 
     ## [9] progeny_1.10.0 
     ## 
     ## loaded via a namespace (and not attached):
     ##  [1] mixtools_1.2.0      bcellViper_1.24.0   tidyselect_1.1.0   
-    ##  [4] xfun_0.13           kernlab_0.9-29      purrr_0.3.4        
-    ##  [7] lattice_0.20-41     splines_4.0.0       colorspace_1.4-1   
-    ## [10] vctrs_0.3.0         htmltools_0.4.0     yaml_2.2.1         
-    ## [13] survival_3.1-12     rlang_0.4.6         e1071_1.7-3        
-    ## [16] pillar_1.4.4        glue_1.4.1          withr_2.2.0        
-    ## [19] BiocGenerics_0.34.0 segmented_1.1-0     RColorBrewer_1.1-2 
-    ## [22] lifecycle_0.2.0     stringr_1.4.0       munsell_0.5.0      
-    ## [25] gtable_0.3.0        evaluate_0.14       labeling_0.3       
-    ## [28] Biobase_2.48.0      knitr_1.28          parallel_4.0.0     
-    ## [31] class_7.3-17        Rcpp_1.0.4.6        KernSmooth_2.23-17 
-    ## [34] scales_1.1.1        farver_2.0.3        viper_1.22.0       
-    ## [37] gridExtra_2.3       hms_0.5.3           digest_0.6.25      
-    ## [40] stringi_1.4.6       grid_4.0.0          tools_4.0.0        
-    ## [43] magrittr_1.5        crayon_1.3.4        pkgconfig_2.0.3    
-    ## [46] Matrix_1.2-18       ellipsis_0.3.0      MASS_7.3-51.6      
-    ## [49] assertthat_0.2.1    rmarkdown_2.1       R6_2.4.1           
-    ## [52] compiler_4.0.0
+    ##  [4] xfun_0.16           kernlab_0.9-29      purrr_0.3.4        
+    ##  [7] splines_4.0.2       lattice_0.20-41     colorspace_1.4-1   
+    ## [10] vctrs_0.3.4         generics_0.0.2      htmltools_0.5.0    
+    ## [13] yaml_2.2.1          survival_3.2-3      rlang_0.4.7        
+    ## [16] e1071_1.7-3         pillar_1.4.6        glue_1.4.2         
+    ## [19] withr_2.2.0         BiocGenerics_0.34.0 segmented_1.2-0    
+    ## [22] RColorBrewer_1.1-2  lifecycle_0.2.0     stringr_1.4.0      
+    ## [25] munsell_0.5.0       gtable_0.3.0        evaluate_0.14      
+    ## [28] labeling_0.3        Biobase_2.48.0      knitr_1.29         
+    ## [31] parallel_4.0.2      class_7.3-17        Rcpp_1.0.5         
+    ## [34] KernSmooth_2.23-17  scales_1.1.1        farver_2.0.3       
+    ## [37] viper_1.22.0        gridExtra_2.3       hms_0.5.3          
+    ## [40] digest_0.6.25       stringi_1.4.6       grid_4.0.2         
+    ## [43] tools_4.0.2         magrittr_1.5        crayon_1.3.4       
+    ## [46] pkgconfig_2.0.3     ellipsis_0.3.1      MASS_7.3-52        
+    ## [49] Matrix_1.2-18       rmarkdown_2.3       R6_2.4.1           
+    ## [52] compiler_4.0.2

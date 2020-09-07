@@ -24,8 +24,11 @@ Please check http://www.gnu.org/licenses/.
 
 ## Introduction
 
-Here we present examples of differential analysis of omic dataset, 
-using RNAseq for the present case.
+This is the second part in a series of transcriptomics tutorials. In
+01_normalisation, we created a normalised dataset and summarised the
+experimental design from which the data was generated. In the current tutorial,
+we present examples of differential analysis of omics data using the normalised
+RNAseq dataset to demonstrate.
 
 ## Getting Started
 
@@ -49,7 +52,7 @@ library(hexbin)
 source("support_functions.R")
 ```
 
-### Import the normalised dataframe and experiemental design
+### Import the normalised dataframe and experimental design
 
 ```{r}
 #Data
@@ -61,32 +64,41 @@ targets <- as.data.frame(read_csv("../support/targets.csv"))
 ```
 
 ### LIMMA differential analysis
-now let's run a simple differential analysis using a simple wrapper for such situation
+Now let's run a simple differential analysis using a simple wrapper for such situation `runLimma`.
 
 ```{r}
 #first check the conditions order
 unique(targets$condition)
 
-#we want to compare the KO with the WT so we build a comparison list
-comparisons <- list("KOvsWT" = c(2,-1)) #each vector of the list represent the contrasts, here we substract the first condition (-1) to the second one (2)
+#we want to compare the KO condition with the WT condition so we build a
+#comparison list
+comparisons <- list("KOvsWT" = c(2,-1)) #each vector of the list represent the contrasts, here we subtract the first condition (-1) from the second one (2)
 
 #now that the comparisons are defined, we can run limma
 limmaRes <- runLimma(measurements = count_df_vsn, 
                      targets = targets, 
                      comparisons = comparisons)
 
-#once limma has run, we extract the statistic dataframe summarise the differential analysis
+#once limma has run, we extract the statistics dataframe to summarise the
+#differential analysis
 ttop_KOvsWT <- ttopFormatter(topTable(limmaRes[[1]], coef = 1, number = length(count_df_vsn[,1]), adjust.method = "fdr"))
 
-##make a qqplot
+#make a qqplot
 null_model <- pnorm(rnorm(length(ttop_KOvsWT[,1])))
 plot(sort(null_model), sort(ttop_KOvsWT$P.Value) ,xlim = c(1,0), ylim = c(1,0)) #not bad, not great, let's proceed
 abline(coef = c(0,1))
 ```
 
-The qqplot (observed p-value distriubtion plotted against a random baseline) is meant to give usan idea of the signal strength when comparing KO and WT. The more the black dot line deviates from the diagonal toward the upper part of the plot, the stronger the signal is. This plot is very similar to a p-value histogram.
-
-In this case, we can oberse a decent signal, but there are many context where it could be much stronger. This type of difference is typical for single mutations comapred to a wild type, which usually lead to weak overall differences. Stronger differences are usually expected for treatment vs control experiments, or when comparing tumor vs healthy tissues.
+The qqplot (observed p-value distribution plotted against a random baseline) is
+meant to give us an idea of the signal strength when comparing the KO and WT
+conditions. The more the black dotted line deviates from the diagonal toward the
+upper part of the plot, the stronger the signal is. This plot is very similar to
+a p-value histogram.
+In this case, we can observe a decent signal, but there are many contexts where
+it could be much stronger. This type of difference is typical for single
+mutations compared to a wild type, which usually lead to weak overall
+differences. Stronger differences are usually expected for treatment vs control
+experiments, or when comparing tumor vs healthy tissues.
 
 ### Write the DA output
 ```{r}
