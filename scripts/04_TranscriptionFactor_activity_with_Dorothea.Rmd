@@ -24,14 +24,15 @@ Please check http://www.gnu.org/licenses/.
 
 ## Introduction
 
-We present here how to estimate transcription factor (TF) activity from 
-transcriptomics data using **DoRothEA**. 
+This is the fourth tutorial in a series of transcriptomics tutorials. Here, we
+present how to estimate transcription factor (TF) activity from transcriptomics
+data using **DoRothEA**.
 
 **DoRothEA** is a comprehensive resource containing a curated collection of TFs 
-and its transcriptional targets. The set of genes regulated by a specific 
+and their transcriptional targets. The set of genes regulated by a specific 
 TF is known as regulon. **DoRothEA’s** regulons were gathered from different 
 types of evidence. Each TF-target interaction is defined by a confidence level 
-based on the number of supporting evidence. The confidence levels range from A 
+based on the volume of supporting evidence. The confidence levels range from A 
 (highest confidence) to E (lowest confidence) [(Garcia-Alonso et al. 2019)](https://doi.org/10.1101/gr.240663.118)
 
 **DoRothEA** regulons are usually coupled with the statistical method **VIPER** 
@@ -76,7 +77,7 @@ In addition, we read the results from the previous scripts:
 
 + Normalised transcriptomics data from (01_normalisation.Rmd)
 + Differential expression analysis results (02_differential_analysis.Rmd). 
-In this particular case, a top table results objects from limma. 
+In this particular case, a top table results object from limma. 
 
 ```{r loadInput, message=FALSE}
 ## We read the normalised counts and the experimental design 
@@ -87,8 +88,8 @@ Experimental_design <- read_csv("../support/targets.csv")
 ttop_KOvsWT <- read_csv("../results/ttop_KOvsWT.csv")
 ```
 
-We have to slighly modify the format of the input files to make it suitable
-to run **DoRothEA**. 
+We have to slightly modify the format of the input files to make them suitable
+for running **DoRothEA**. 
 
 ```{r, message=FALSE}
 Normalised_counts_matrix <- Normalised_counts %>% 
@@ -116,15 +117,15 @@ regulons <- dorothea_hs %>%
   dplyr::filter(confidence %in% c("A", "B","C"))
 ```
 
-It is to note that for **DoRothEA**, we proceed the other way around than for 
-**PROGENy**. We have many TFs so, we cannot clearly visualize all of them in the 
-same heatmap. That is why, we first compute a TF activity enrichment analysis 
-using the statistcs from the differential expression analysis. This will allow 
-us to select the TFs whose activity varies the conditions under study. 
+Note that for **DoRothEA**, we proceed the other way around than for 
+**PROGENy**. We have many TFs, so we cannot clearly visualize all of them in the 
+same heatmap. That is why we first compute a TF activity enrichment analysis 
+using the statistics from the differential expression analysis. This will allow 
+us to select the TFs whose activity varies with the conditions under study. 
 
 It is important to set the parameter `eset.filter` to `FALSE`. In this case,
-we set the minimun size of regulons to five (`minsize`). I strongly recommend
-to check `?viper` to set the parameters that best fits your needs. 
+we set the minimum size of regulons to five (`minsize`). I strongly recommend
+to check `?viper` to set the parameters that best fit your needs. 
 
 ```{r ViperStat, message=FALSE}
 tf_activities_stat <- dorothea::run_viper(ttop_KOvsWT_matrix, regulons,
@@ -179,7 +180,7 @@ tf_activities_CARNIVALinput<- tf_activities_stat %>%
 write_csv(tf_activities_CARNIVALinput, "../results/TFActivity_CARNIVALinput.csv")
 ```
 
-We now compute TFs activities per every sample (with the replicates) using the 
+We now compute TF activities per sample (with the replicates) using the 
 normalised counts. We display the results of the previous 25 TFs in a Heatmap.
 
 ```{r ViperCounts, message=FALSE}

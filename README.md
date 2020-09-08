@@ -1,11 +1,11 @@
 ![alt text](https://github.com/saezlab/transcriptutorial/blob/master/transcriptuto_logo.001.png?raw=true)
 
 # transcriptutorial
-This is a tutorial to guide the analysis of RNAseq dataset using footprint based tools such as DOROTHEA, PROGENY and CARNIVAL
+This is a tutorial to guide the analysis of RNAseq datasets using footprint based tools such as DOROTHEA, PROGENY and CARNIVAL.
 
-For details instructions to setup the transcriptutorial (data, software, R packages, etc), visit [INSTALL.md](INSTALL.md)
+For details instructions to setup the transcriptutorial (data, software, R packages, etc), visit [INSTALL.md](INSTALL.md).
 
-This tutorial is split in several sections, from normalisation to causal network analysis. Once set up, you may run each step sequentially. The corresponding R markdown scripts for each of those sections can be found in the scripts subfolder.
+This tutorial is split into several sections, from normalisation to causal network analysis. Once set up, you may run each step sequentially. The corresponding R markdown scripts for each of those sections can be found in the scripts subfolder.
 
 https://github.com/saezlab/transcriptutorial/blob/master/scripts/01_normalisation.md
 
