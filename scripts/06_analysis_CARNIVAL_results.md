@@ -17,6 +17,15 @@ Public License for more details.
 
 Please check <http://www.gnu.org/licenses/>.
 
+## Introduction
+
+This is the final part of our series of transcriptomics tutorials. In
+previous parts, we normalised RNASeq data for differential analysis, and
+used the differential analysis results in **PROGENy** and **DOROTHea**.
+In the previous tutorial, we demonstrated **CARNIVAL** with TF
+activities from **DOROTHea**, a prior knowledge network from
+**Omnipath**, and weights from **PROGENy**.
+
 ## CARNIVAL output
 
 CARNIVAL (CAusal Reasoning for Network identification using Integer
@@ -44,9 +53,9 @@ NOTE: This is valid for current CARNIVAL version (1.0.0)
 
 The summary files ( *sifAll* and *attributesAll* ) can be directly used
 to identify causal interactions between the perturbed nodes and the
-selected Transcription Factors. In addition to extract direct
+selected Transcription Factors. In addition to extracting direct
 information from the network, we can run different downstream analysis
-based on the necesities of each project.
+based on the necessities of each project.
 
 Here are described some of the downstream approaches that we have used:
 
@@ -90,11 +99,11 @@ pkn = read_tsv("../results/omnipath_carnival.tsv")
 
 # Enrichment Analysis
 
-We define two different gene sets in order tor conduct the enrichment.
-The first set contains the nodes that appear in the CARNIVAL output, and
-are therefore relevant in the context of our input transcriptomic data.
-The second set contains all the genes in our prior knowledge network
-which are used as the backgroud.
+We define two different gene sets in order to conduct the enrichment
+analysis. The first set contains the nodes that appear in the CARNIVAL
+output, and are therefore relevant in the context of our input
+transcriptomic data. The second set contains all the genes in our prior
+knowledge network which are used as the background.
 
 We also downloaded from MSigDB <https://www.gsea-msigdb.org/> the
 following dataset: c2.cp.v7.1.symbols.gmt. It contains several pathways
@@ -176,17 +185,17 @@ ggplot(ggdata, aes(y = reorder(pathway, AdjPvalu), x = -log10(AdjPvalu)), color 
 We can get a sense of the size of the reconstructed networks using
 topological parameters, such as number of edges and nodes. We can also
 have a look at the network’s density and the *degree distribution*. The
-*density* indicates the proportion of interactions that exisit in our
-network when comparing with all posible interactions that can be
-stablished. The *degree distribution* shows the number of connections of
-a node. In a direct network, we can distinguish between incoming and
-outgoing connections.
+*density* indicates the proportion of interactions that exist in our
+network when comparing with all possible interactions that can be
+established. The *degree distribution* shows the number of connections
+of a node. In a directed network, we can distinguish between incoming
+and outgoing connections.
 
-NOTE: Here the density is calculated for a *direct graph*. As CARNIVAL
-can repot 2 interactions between the same 2 nodes with different sign,
+NOTE: Here the density is calculated for a *directed graph*. As CARNIVAL
+can report 2 interactions between the same 2 nodes with different sign,
 these “doubled” interactions are excluded when calculating the density.
 
-To know more about this topic:
+To find out more about this topic:
 
   - <https://mathinsight.org/degree_distribution>
   - <https://www.networksciencebook.com/chapter/2#degree>
@@ -198,7 +207,7 @@ To know more about this topic:
 sifts = lapply(carnival_sample_resolution, function(x){x$weightedSIF})
 nodos = lapply(carnival_sample_resolution, function(x){x$nodesAttributes})
 
-# Calculate the number of edges and nodes in the networks and it's density
+# Calculate the number of edges and nodes in the networks and its density
 node_edge = do.call(rbind,lapply(sifts, count_edges_nodes_degree))
 
 # Calculate degree distribution for a sample
@@ -214,11 +223,11 @@ colnames(p) = c("k", "total_degree", "in_degree", "out_degree")
 p = melt(p, value.name = "p", id.vars = "k")
 p$k = relevel(p$k, "0")
 
-#visualize
+#visualise
 ggdat = as.data.frame(node_edge) %>% tibble::rownames_to_column(var = "sample") %>%
   dplyr::mutate(condition = gsub(".Rep[0-9]{1}", "", sample))
 
-#Ploting
+#Plotting
 
 # relation between number of edges and nodes
 ggplot(ggdat, aes(x = nodes, y = edges, color = as.factor(condition))) +
@@ -236,7 +245,7 @@ ggplot(ggdat, aes(x = nodes, y = edges, color = as.factor(condition))) +
 ![](06_analysis_CARNIVAL_results_files/figure-gfm/netopology-1.png)<!-- -->
 
 ``` r
-#networ degree
+#network degree
 ggplot(ggdat, aes(x = density, y = sample, fill = as.factor(condition) )) +
   geom_col() +
   theme_bw(base_size = 15) +
@@ -287,7 +296,7 @@ Generally speaking, biological networks are not dense, so don’t worry if
 the density values are low… they usually are\!
 
 The degree distribution is an interesting graphic to look at, as we can
-get some straigth information:
+get some immediate information:
 
   - k = 0 for in-degree indicates the proportion of initial nodes, while
     for out-degree indicates the effectors (here the TFs). For
@@ -297,14 +306,14 @@ get some straigth information:
     0.6), but there are a few that are highly connected (e.g. k \> 6).
 
   - We can find some hubs when k is higher (plot B). The out-degree ends
-    at k = 5; this means that the bigest regulatory-hub regulates upmost
-    5 other nodes. In a simmilar way, the in-degree goes up to k = 9;
-    This means that there are few hubs (k \> 5) that are regulated by
-    upmost 9 nodes.
+    at k = 5; this means that the biggest regulatory-hub regulates at
+    most 5 other nodes. In a similar way, the in-degree goes up to k =
+    9; This means that there are few hubs (k \> 5) that are regulated by
+    at most 9 nodes.
 
 # Network comparison
 
-When we have more than 1 network, we usually would like to know how
+When we have more than one network, we usually would like to know how
 (dis)similar these networks are.
 
 We can use the *Jaccard Index* to measure similarities and diversity
@@ -329,7 +338,7 @@ net_int = apply(interactions, 2, function(x, r){
   r[which(!is.na(x))]
 }, rownames(interactions))
 
-# calcualte jaccard indexes per pairs
+# calculate Jaccard indexes per pair
 combined = expand.grid(1:length(names(sifts)), 1:length(names(sifts)))
 jac_index = matrix(data = NA, nrow = length(names(sifts)), ncol = length(names(sifts)),
                    dimnames = list(names(sifts), names(sifts)))
@@ -340,7 +349,7 @@ for (i in 1:nrow(combined)){
   jac_index[n,m] = length( intersect(net_int[[n]], net_int[[m]]) ) / length( union(net_int[[n]], net_int[[m]]) )
 }
 
-# Visualize the indexes in a headmap
+# Visualize the indexes in a heatmap
 
 pheatmap::pheatmap(jac_index,fontsize=14, 
            fontsize_row = 10, fontsize_col = 10, 
@@ -355,10 +364,10 @@ pheatmap::pheatmap(jac_index,fontsize=14,
 shared_interactions_WT = getCoreInteractions(topology = interactions[,1:3], psmpl = 100)
 ```
 
-    ## 38 interactions found in at least 3 samples out of 3
+    ## 37 interactions found in at least 3 samples out of 3
 
 ``` r
-# Visualize the interactions
+# Visualise the interactions
 colnames(shared_interactions_WT) = c("from", "sign", "to")
 labels_edge = c("-1" = "inhibition", "1" = "activation")
 nodes = data.frame(union(shared_interactions_WT$from, shared_interactions_WT$to))

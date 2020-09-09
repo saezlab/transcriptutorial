@@ -19,23 +19,23 @@ Please check <http://www.gnu.org/licenses/>.
 
 ## Introduction
 
-CARNIVAL (CAusal Reasoning for Network identification using Integer
+**CARNIVAL** (CAusal Reasoning for Network identification using Integer
 VALue programming) is a method for the identification of upstream
-reguatory signalling pathways from downstream gene expression (GEX)
+regulatory signalling pathways from downstream gene expression (GEX)
 [(Liu, Trairatphisan, Gjerga et
 al. 2019)](https://doi.org/10.1038/s41540-019-0118-z). The aim of
-CARNIVAL is to identify a subset of interactions from a prior knowledge
-network, a network that represents potential regulated pathways linking
-known or potential targets of perturbation, towards active transcription
-factors derived from GEX data.
+**CARNIVAL** is to identify a subset of interactions from a prior
+knowledge network, a network that represents potential regulated
+pathways linking known or potential targets of perturbation, to active
+transcription factors derived from GEX data.
 
-We present here how to use CARNIVAL based on the transcription factor
-(TF) activity derived from transcriptomics data using **DoRothEA**
-[(Garcia-Alonso et al. 2019)](https://doi.org/10.1101/gr.240663.118),
-and the prior knowledge network obtained from
-[**Omnipath**](http://omnipathdb.org/), a literature curated mammalian
-signaling pathway resource [(Türei et
-al 2016)](https://www.nature.com/articles/nmeth.4077).
+In the fifth part of our transcriptomics tutorial series, we demonstrate
+how to use **CARNIVAL** based on the transcription factor (TF) activity
+derived from transcriptomics data using **DoRothEA** [(Garcia-Alonso et
+al. 2019)](https://doi.org/10.1101/gr.240663.118), and the prior
+knowledge network obtained from [**Omnipath**](http://omnipathdb.org/),
+a literature curated mammalian signaling pathway resource [(Türei et al
+2016)](https://www.nature.com/articles/nmeth.4077).
 
 In order to help CARNIVAL to find a solution faster, we can also use
 **PROGENy** [(Schubert et
@@ -97,11 +97,11 @@ PathwayActivity <- read_csv("../results/PathwayActivity_CARNIVALinput.csv")
 ## Getting the scaffold network from Omnipath
 
 Before running **CARNIVAL**, we need to create or upload a scaffold
-network. This will be *“the map”* that the IPL algorithm will follow to
+network. This will be *“the map”* that the ILP algorithm will follow to
 find the causal network. We use **Omnipath** to obtain the signed and
 directed interactions from all the available resources. CARNIVAL
-requires this informacion in a *sif* table (node1, interaction, node2)
-format, therefore, we use the *consensus* columns of direction
+requires this information in a *sif* table (node1, interaction, node2)
+format, therefore we use the *consensus* columns of direction
 (consensus\_direction) and sign (consensus\_stimulation and
 consensus\_inhibition) to extract it.
 
@@ -115,9 +115,9 @@ B). In this example, we keep the consistent ones.
 omniR <- import_Omnipath_Interactions()
 ```
 
-    ## Warning in FUN(URL, ...): incomplete final line found by
-    ## readTableHeader on 'http://omnipathdb.org/interactions?
-    ## datasets=omnipath,pathwayextra,kinaseextra,ligrecextra,tfregulons,mirnatarget&fields=sources'
+    ## Warning: 'import_Omnipath_Interactions' is deprecated.
+    ## Use 'import_omnipath_interactions' instead.
+    ## See help("Deprecated")
 
 ``` r
 # signed and directed
@@ -207,7 +207,8 @@ In the present example, we use assign as perturbation nodes all the
 “initial” nodes (option 2), and as *weightObj* the PROGENy scores
 assigned to the most representative genes of the calculated pathways,
 
-Please, check the FAQ file to get some more insights.
+Please, check the [CARNIVAL](https://saezlab.github.io/CARNIVAL/) page
+to get some more insight.
 
 ``` r
 # get initial nodes
@@ -241,7 +242,7 @@ CARNIVAL gives a list of 4 elements:
   - sifAll: networks of all the models
   - attributesAll: node attributes of all models
 
-We can visualise the network…
+We can now visualise the network…
 
 ``` r
 #transoform to data.frame
@@ -294,7 +295,7 @@ visSave(visNet, file = paste0('carnival_visualization_visNetwork.html'), selfcon
 
 ## Session Info Details
 
-    ## R version 4.0.0 (2020-04-24)
+    ## R version 4.0.2 (2020-06-22)
     ## Platform: x86_64-apple-darwin17.0 (64-bit)
     ## Running under: macOS Catalina 10.15.6
     ## 
@@ -309,37 +310,37 @@ visSave(visNet, file = paste0('carnival_visualization_visNetwork.html'), selfcon
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ##  [1] ggrepel_0.8.2    pheatmap_1.0.12  ggplot2_3.3.1    visNetwork_2.0.9
-    ##  [5] dplyr_1.0.0      tidyr_1.1.0      tibble_3.0.1     readr_1.3.1     
-    ##  [9] OmnipathR_1.2.1  igraph_1.2.5     CARNIVAL_1.0.0   dorothea_1.0.0  
-    ## [13] progeny_1.10.0  
+    ##  [1] ggrepel_0.8.2    pheatmap_1.0.12  ggplot2_3.3.2    visNetwork_2.0.9
+    ##  [5] dplyr_1.0.2      tidyr_1.1.1      tibble_3.0.3     readr_1.3.1     
+    ##  [9] OmnipathR_1.3.5  jsonlite_1.7.0   igraph_1.2.5     CARNIVAL_1.0.0  
+    ## [13] dorothea_1.0.0   progeny_1.10.0  
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] httr_1.4.1           Biobase_2.48.0       mixtools_1.2.0      
-    ##  [4] UniProt.ws_2.28.0    jsonlite_1.6.1       bit64_0.9-7         
-    ##  [7] splines_4.0.0        foreach_1.5.0        assertthat_0.2.1    
-    ## [10] BiocFileCache_1.12.0 stats4_4.0.0         RBGL_1.64.0         
-    ## [13] blob_1.2.1           yaml_2.2.1           Category_2.54.0     
-    ## [16] viper_1.22.0         pillar_1.4.4         RSQLite_2.2.0       
-    ## [19] lattice_0.20-41      glue_1.4.1           digest_0.6.25       
-    ## [22] RColorBrewer_1.1-2   colorspace_1.4-1     htmltools_0.4.0     
-    ## [25] Matrix_1.2-18        GSEABase_1.50.1      lpSolve_5.6.15      
-    ## [28] XML_3.99-0.3         pkgconfig_2.0.3      genefilter_1.70.0   
-    ## [31] purrr_0.3.4          xtable_1.8-4         scales_1.1.1        
-    ## [34] annotate_1.66.0      generics_0.0.2       IRanges_2.22.2      
-    ## [37] ellipsis_0.3.1       withr_2.2.0          BiocGenerics_0.34.0 
-    ## [40] survival_3.2-3       magrittr_1.5         crayon_1.3.4        
-    ## [43] memoise_1.1.0        evaluate_0.14        doParallel_1.0.15   
-    ## [46] MASS_7.3-51.6        segmented_1.1-0      class_7.3-17        
-    ## [49] graph_1.66.0         tools_4.0.0          hms_0.5.3           
-    ## [52] lifecycle_0.2.0      stringr_1.4.0        bcellViper_1.24.0   
-    ## [55] S4Vectors_0.26.1     kernlab_0.9-29       munsell_0.5.0       
-    ## [58] AnnotationDbi_1.50.0 compiler_4.0.0       e1071_1.7-3         
-    ## [61] rlang_0.4.6          grid_4.0.0           RCurl_1.98-1.2      
-    ## [64] iterators_1.0.12     htmlwidgets_1.5.1    rappdirs_0.3.1      
-    ## [67] bitops_1.0-6         rmarkdown_2.3        gtable_0.3.0        
-    ## [70] codetools_0.2-16     curl_4.3             DBI_1.1.0           
-    ## [73] R6_2.4.1             gridExtra_2.3        knitr_1.28          
-    ## [76] bit_1.1-15.2         KernSmooth_2.23-17   stringi_1.4.6       
-    ## [79] parallel_4.0.0       Rcpp_1.0.4.6         vctrs_0.3.1         
-    ## [82] dbplyr_1.4.4         tidyselect_1.1.0     xfun_0.14
+    ##  [1] httr_1.4.2           Biobase_2.48.0       mixtools_1.2.0      
+    ##  [4] UniProt.ws_2.28.0    bit64_4.0.2          splines_4.0.2       
+    ##  [7] foreach_1.5.0        assertthat_0.2.1     BiocFileCache_1.12.1
+    ## [10] stats4_4.0.2         RBGL_1.64.0          blob_1.2.1          
+    ## [13] yaml_2.2.1           Category_2.54.0      viper_1.22.0        
+    ## [16] pillar_1.4.6         RSQLite_2.2.0        lattice_0.20-41     
+    ## [19] glue_1.4.1           digest_0.6.25        RColorBrewer_1.1-2  
+    ## [22] colorspace_1.4-1     htmltools_0.5.0      Matrix_1.2-18       
+    ## [25] GSEABase_1.50.1      lpSolve_5.6.15       XML_3.99-0.5        
+    ## [28] pkgconfig_2.0.3      genefilter_1.70.0    purrr_0.3.4         
+    ## [31] xtable_1.8-4         scales_1.1.1         annotate_1.66.0     
+    ## [34] generics_0.0.2       IRanges_2.22.2       ellipsis_0.3.1      
+    ## [37] withr_2.2.0          BiocGenerics_0.34.0  survival_3.1-12     
+    ## [40] magrittr_1.5         crayon_1.3.4         memoise_1.1.0       
+    ## [43] evaluate_0.14        doParallel_1.0.15    MASS_7.3-51.6       
+    ## [46] segmented_1.2-0      class_7.3-17         graph_1.66.0        
+    ## [49] tools_4.0.2          hms_0.5.3            lifecycle_0.2.0     
+    ## [52] stringr_1.4.0        bcellViper_1.24.0    S4Vectors_0.26.1    
+    ## [55] kernlab_0.9-29       munsell_0.5.0        AnnotationDbi_1.50.3
+    ## [58] compiler_4.0.2       e1071_1.7-3          rlang_0.4.7         
+    ## [61] grid_4.0.2           RCurl_1.98-1.2       iterators_1.0.12    
+    ## [64] htmlwidgets_1.5.1    rappdirs_0.3.1       bitops_1.0-6        
+    ## [67] rmarkdown_2.3        gtable_0.3.0         codetools_0.2-16    
+    ## [70] curl_4.3             DBI_1.1.0            R6_2.4.1            
+    ## [73] gridExtra_2.3        knitr_1.29           bit_4.0.4           
+    ## [76] KernSmooth_2.23-17   stringi_1.4.6        parallel_4.0.2      
+    ## [79] Rcpp_1.0.5           vctrs_0.3.2          dbplyr_1.4.4        
+    ## [82] tidyselect_1.1.0     xfun_0.16
