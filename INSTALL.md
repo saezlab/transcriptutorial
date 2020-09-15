@@ -18,7 +18,7 @@ gunzip $destfile
 
 ## 3. Environment
 
-### 3.1 . Install miniconda3
+### 3.1. Install miniconda3
 > NOTE: only done once (1st time) in your local machine
 
 `miniconda3` is the framework to create and manage `envs`.
@@ -53,7 +53,16 @@ rm Miniconda3-latest-Linux-x86_64.sh
 ```
 
 ### 3.2. Setup of environment
-You can create the conda enviroment from scratch using the command below. Alternatively, you could create it from a recipe (see next chunk).
+The first time that you install conda, it is installed with a default configuration.
+You have to extend this configuration by adding essential channels that are required to install `R`, `CRAN` and `BioConductor` packages.
+
+```bash
+conda config --append channels conda-forge
+conda config --append channels r
+conda config --append channels bioconda
+```
+
+Then you can create the conda enviroment from scratch using the command below. Alternatively, you could create it from a recipe (see next chunk).
 ```bash 
 conda create -p envs/transcriptutorial r-base=4.0 python=3.8 bioconductor-CARNIVAL r-cowplot bioconductor-dorothea r-dplyr \ 
 	r-ggplot2 r-ggrepel r-gridExtra bioconductor-GSEABase r-hexbin bioconductor-limma r-network bioconductor-OmnipathR \
