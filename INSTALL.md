@@ -26,9 +26,9 @@ Then you can install all required packages following the commands on `R` console
 # Define required packages
 cran_pkgs <- c("cowplot", "dplyr", "ggplot2", "ggrepel", "gridExtra", "hexbin", "network", 
 "pheatmap", "plyr", "readr", "reshape", "reshape2", "scales", "tibble", "tidyr", 
-"snowfall", "visNetwork", "rmarkdown")
+"ggraph", "tidygraph", "snowfall", "visNetwork", "rmarkdown")
 
-bioC_pkgs <- c("dorothea", "GSEABase", "limma", "OmnipathR", "piano", "progeny", "svn")
+bioC_pkgs <- c("viper", "dorothea", "GSEABase", "limma", "OmnipathR", "piano", "progeny", "vsn")
 
 # Install CRAN packages
 install.packages(cran_pkgs)
