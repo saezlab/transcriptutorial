@@ -48,20 +48,15 @@ conda config --append channels r
 conda config --append channels bioconda
 ```
 
-Then you can create the conda enviroment from scratch using the command below. Alternatively, you could create it from a recipe (see next chunk).
+Then you can create the conda enviroment from scratch using: 
 ```bash 
-conda create -p envs/transcriptutorial r-base=4.0 python=3.8 bioconductor-CARNIVAL r-cowplot bioconductor-dorothea r-dplyr \ 
+conda create -p envs/transcriptutorial r-base=4.0 python=3.8 bioconductor-CARNIVAL r-cowplot r-dplyr bioconductor-viper \ 
 	r-ggplot2 r-ggrepel r-gridExtra bioconductor-GSEABase r-hexbin bioconductor-limma r-network bioconductor-OmnipathR \
 	r-pheatmap bioconductor-piano r-plyr bioconductor-progeny r-readr r-reshape r-reshape2 r-scales r-tibble r-tidyr \
-	r-visNetwork bioconductor-vsn r-rmarkdown
+	r-visNetwork bioconductor-vsn r-ggraph r-tidygraph r-rmarkdown
 ```
 
-[Or create from a recipe]
-```bash
-conda create --prefix ./envs/transcriptutorial --file ./envs/transcriptutorial.txt
-```
-
-Finally, get the latest `devel` version of `OmnipathR`:
+Finally, install manually `dorothea` and the latest `devel` version of `OmnipathR`:
 ```bash
 # Terminal
 conda activate ./envs/transcriptutorial
@@ -70,27 +65,14 @@ $CONDA_PREFIX/bin/R
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-## Last release in Bioconductor
+## dorothea
+#NOTE: dorothea is included in bioconda, although installation fails due to wrong indexing to bioconductor URL 
+#	with current version of recipe. We have reported the issue. It will be fixed soon.
+BiocManager::install("dorothea")
+
+## OmnipathR package
 BiocManager::install("OmnipathR", version='devel')
 ```
-### External devtools::packages
-In case of external packages to CRAN/Bioconductor, these could be installed
-in an interactive R session using `devtools`.
 
-```bash
-# Terminal
-conda activate ./envs/transcriptutorial
-conda install -p ./envs/transcriptutorial r-devtools
-$CONDA_PREFIX/bin/R
-```
+> Note: if the installation of any of the packages fails with the conda recipe, just install it manually as the last chunk above.
 
-```r
-# R session
-# Setup for devtools installation
-getOption("unzip")
-Sys.getenv("TAR")
-options(unzip = "/opt/conda/bin/unzip")
-Sys.setenv(TAR = "/bin/tar")
-# Actual required packages
-devtools::install_github("USER/REPOSITORY") 
-```
