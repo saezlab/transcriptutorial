@@ -28,7 +28,8 @@ cran_pkgs <- c("cowplot", "dplyr", "ggplot2", "ggrepel", "gridExtra", "hexbin", 
 "pheatmap", "plyr", "readr", "reshape", "reshape2", "scales", "tibble", "tidyr", 
 "ggraph", "tidygraph", "snowfall", "visNetwork", "rmarkdown")
 
-bioC_pkgs <- c("viper", "dorothea", "GSEABase", "limma", "OmnipathR", "piano", "progeny", "vsn")
+bioC_pkgs <- c("viper", "dorothea", "GSEABase", "limma", "OmnipathR", "piano", "progeny", 
+"vsn", "CARNIVAL")
 
 # Install CRAN packages
 install.packages(cran_pkgs)
