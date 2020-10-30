@@ -4,6 +4,7 @@ author: "Rosa Hernansaiz-Ballesteros"
 date: "18/05/2020"
 output: 
   github_document: default
+  
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
