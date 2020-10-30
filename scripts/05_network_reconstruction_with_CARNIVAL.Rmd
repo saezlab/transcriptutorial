@@ -186,6 +186,8 @@ In the present example, we use assign as perturbation nodes all the "initial" no
 and as _weightObj_ the PROGENy scores assigned to the most representative genes of the calculated pathways,
 
 Please, check the [CARNIVAL](https://saezlab.github.io/CARNIVAL/) page to get some more insight.
+For more specific technical details, as how to install different ILP solvers that CARNIVAL supports,
+pleasre check [CARNIVAL vignette](https://bioconductor.org/packages/release/bioc/vignettes/CARNIVAL/inst/doc/CARNIVAL.html).
 
 ```{r carnival, message=FALSE}
 
