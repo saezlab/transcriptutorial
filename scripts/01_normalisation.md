@@ -214,41 +214,47 @@ are based on UniProt or gene symbols, we need to do some identifier
 Kung-Fu\!
 
 ``` r
-#this identifier matching dataframe was retrieved from uniprot:
-gene_id_mapping_from_uniprot <- as.data.frame(
-  read_delim("../support/gene_id_mapping_from_uniprot.tab", 
-             "\t", escape_double = FALSE, trim_ws = TRUE))
-```
+# Gene ids and symbols retrieved from Biomart (Human genome 38):
+gene_id_symbol <- 
+    read.csv(file.path('..', 'support', 'gene_id_symbol.txt'), header = TRUE)
+  rownames(gene_id_symbol) <- gene_id_symbol$id
+  
+# Remove all genes that have no gene id in the symbols df
+count_df_vsn <- count_df_vsn[row.names(count_df_vsn) %in% 
+                               rownames(gene_id_symbol),]
+                               
+# Remove all ids that are not in our count dataframe
+gene_id_symbol <- gene_id_symbol[rownames(gene_id_symbol) %in% 
+                                   row.names(count_df_vsn),]
 
-    ## Parsed with column specification:
-    ## cols(
-    ##   `yourlist:M201912038471C63D39733769F8E060B506551E125F0C55R` = col_character(),
-    ##   `isomap:M201912038471C63D39733769F8E060B506551E125F0C55R` = col_character(),
-    ##   Entry = col_character(),
-    ##   `Entry name` = col_character(),
-    ##   Status = col_character(),
-    ##   `Protein names` = col_character(),
-    ##   `Gene names` = col_character(),
-    ##   Organism = col_character(),
-    ##   Length = col_double()
-    ## )
+# Get repeated symbols in symbols df
+repeated_symbols <- gene_id_symbol %>% group_by(symbol) %>% 
+  summarise(count=n()) %>% arrange(desc(count)) %>% filter(count > 1) %>% 
+  select(symbol) %>% t() %>% unname() %>% c()
+  
+for(r in repeated_symbols){
+  # Get repeated ids
+  repeated_ids <- gene_id_symbol %>% 
+    filter(symbol==r) %>% rownames()
+  # Compute mean expression of genes
+  mean_r <- count_df_vsn[repeated_ids,] %>% 
+    summarise(across(everything(), list(mean)))
+  # Update symbol with mean expression
+  count_df_vsn[r,] <- mean_r
+  # Remove id
+  count_df_vsn <- count_df_vsn[!row.names(count_df_vsn) %in% repeated_ids,]
+}
 
-``` r
-gene_id_mapping_from_uniprot <- gene_id_mapping_from_uniprot[!is.na(gene_id_mapping_from_uniprot$`Gene names`),]
-
-#let's make a pseudo dictionary to make the mapping efficient
-ensembl_to_symbol <- gsub(" .*","",gene_id_mapping_from_uniprot$`Gene names`)
-names(ensembl_to_symbol) <- gene_id_mapping_from_uniprot[,1]
-
-#remove all genes that have no gene symbol from our count dataframe
-row.names(count_df_vsn) <- gsub("[.][0-9]*","",row.names(count_df_vsn))
-count_df_vsn <- count_df_vsn[row.names(count_df_vsn) %in% names(ensembl_to_symbol),]
-
-#now let's convert ids with the pseudo dictionary
+# Now let's convert ids with the pseudo dictionary
 for(i in 1:length(count_df_vsn[,1]))
 {
-  row.names(count_df_vsn)[i] <- ensembl_to_symbol[row.names(count_df_vsn)[i]]
+  # Only update the ids and skip the already present symbols
+  if (!row.names(count_df_vsn)[i] %in% repeated_symbols){
+    row.names(count_df_vsn)[i] <- 
+      gene_id_symbol[row.names(count_df_vsn)[i],]$symbol
+  }
 }
+
 ```
 
 ## Write count and target files for further analysis
