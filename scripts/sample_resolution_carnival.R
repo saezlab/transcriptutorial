@@ -19,7 +19,7 @@ sif = read_tsv("../results/omnipath_carnival.tsv")
 tf_activities_carnival <- data.frame(tf_activities, stringsAsFactors = F)
 rownames(tf_activities_carnival) <- tf_activities$TF
 tf_activities_carnival$TF <- NULL
-tfList = generateTFList(tf_activities_carnival, top=50, access_idx = 1:nrow(tf_activities_carnival))
+tfList = generateTFList(tf_activities_carnival, top=50, access_idx = 1:ncol(tf_activities_carnival))
 
 # progeny for CARNIVAL
 load(file = system.file("progenyMembers.RData",package="CARNIVAL"))
