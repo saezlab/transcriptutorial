@@ -175,12 +175,15 @@ NOTE: Here the density is calculated for a _directed graph_.
 As CARNIVAL can report 2 interactions between the same 2 nodes with different sign, 
 these "doubled" interactions are excluded when calculating the density.
 
+For this section, and the following ones, we use the CARNIVAL networks obtained
+when running the _sample_resolution_carnival.R_. 
+
 To find out more about this topic:
 
 + https://mathinsight.org/degree_distribution
 + https://www.networksciencebook.com/chapter/2#degree
 
-```{r netopology, message=FALSE, message=FALSE, results='hide', warning=FALSE}
+```{r netopology, message=FALSE, results='hide', warning=FALSE}
 
 # get only summary files from CARNIVAL results
 sifts = lapply(carnival_sample_resolution, function(x){x$weightedSIF})
@@ -281,7 +284,7 @@ Generally, it's used with the nodes, but we can also use it with the edges.
 
 When we have groups, in our case WT and FOXA2KO, we can also extract the interactions that are common.
 
-```{r netcompare, message=FALSE, , results='hide', warning=FALSE}
+```{r netcompare, message=FALSE, results='hide', warning=FALSE}
 
 # create a matrix of all interactions for all samples
 
