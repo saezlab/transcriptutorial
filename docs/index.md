@@ -1,37 +1,25 @@
 ## Welcome to GitHub Pages
 
-You can use the [editor on GitHub](https://github.com/saezlab/transcriptutorial/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
+This is a tutorial to guide the analysis of RNAseq datasets using footprint based tools such as DOROTHEA, PROGENY and CARNIVAL.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+For details instructions to setup the transcriptutorial (data, software, R packages, etc), visit INSTALL.md.
 
-### Markdown
+This tutorial is split into several sections, from normalisation to causal network analysis. Once set up, you may run each step sequentially. The corresponding R markdown scripts for each of those sections can be found in the scripts subfolder.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+1. [Normalisation](https://github.com/saezlab/transcriptutorial/blob/master/scripts/01_normalisation.md)
 
-```markdown
-Syntax highlighted code block
+2. [Differential analysis](https://github.com/saezlab/transcriptutorial/blob/master/scripts/02_differential_analysis.md)
 
-# Header 1
-## Header 2
-### Header 3
+3. [Pathway activity with Progeny](https://github.com/saezlab/transcriptutorial/blob/master/scripts/03_Pathway_activity_with_Progeny.md)
 
-- Bulleted
-- List
+4. [Trascription factors activity with Dorothea/Viper](https://github.com/saezlab/transcriptutorial/blob/master/scripts/04_TranscriptionFactor_activity_with_Dorothea.md)
 
-1. Numbered
-2. List
+5. [Network reconstruction with CARNIVAL](https://github.com/saezlab/transcriptutorial/blob/master/scripts/05_network_reconstruction_with_CARNIVAL.md)
 
-**Bold** and _Italic_ and `Code` text
+6. [Analysis of CARNIVAL results](https://github.com/saezlab/transcriptutorial/blob/master/scripts/06_analysis_CARNIVAL_results.md)
 
-[Link](url) and ![Image](src)
-```
+For any question/suggestions, we encourage you to use the issue submission system :)
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+Have fun !!
 
-### Jekyll Themes
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/saezlab/transcriptutorial/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
