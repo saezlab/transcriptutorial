@@ -51,7 +51,16 @@ source("support_functions.R")
 ### Import the raw count dataframe
 The data can be downloaded from: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE119931
 Download the file: GSE119931_PANC1.FOXA2KO.genes.counts.txt.gz and decompress 
-it inside the 'data' folder.
+it inside the 'data' folder or run the following script: 
+
+```{r, eval=FALSE}
+if(!file.exists("../data/GSE119931_PANC1.FOXA2KO.genes.counts.txt")){
+    download.file(url = "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE119931&format=file&file=GSE119931%5FPANC1%2EFOXA2KO%2Egenes%2Ecounts%2Etxt%2Egz",
+                  destfile = file.path("..","data","GSE119931_PANC1.FOXA2KO.genes.counts.txt.gz"))
+    R.utils::gunzip(file.path("..","data","GSE119931_PANC1.FOXA2KO.genes.counts.txt.gz"))
+}
+```
+
 
 ```{r}
 ## Raw counts table
