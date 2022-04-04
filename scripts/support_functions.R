@@ -461,10 +461,11 @@ runLimma <- function(measurements, targets, comparisons = NULL, regress_out = NU
 #'@return a dataframe similar to the output of topTable function of limma but with first column as IDs instead of onyl row.names.
 ttopFormatter <- function(ttop)
 {
-  ttop$ID <- row.names(ttop)
-  ttop <- ttop[,c(7,1,2,3,4,5,6)]
-  ttop <- ttop[complete.cases(ttop),]
-  return(ttop)
+    cols = 1:ncol(ttop)
+    ttop$ID <- row.names(ttop)
+    ttop <- ttop[,c(ncol(ttop),cols)]
+    ttop <- ttop[complete.cases(ttop),]
+    return(ttop)
 }
 
 #'\code{df_to_viper_regulon}
