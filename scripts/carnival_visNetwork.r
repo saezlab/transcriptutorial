@@ -50,10 +50,13 @@ carnival_visNet <- function(evis, nvis, mapIDs=NULL){
     nvis$label = nvis$Node
   }
   
-  colnames(nvis) = c("id", "UpAct", "DownAct", "color", "group", "label")
+  nvis <- nvis %>% dplyr::rename(id = "Node",
+                         group = "NodeType",
+                         color = "AvgAct")
   
-  nvis$group = replace(nvis$group, nvis$group=='T', 'TFs')
-  nvis$group = replace(nvis$group, nvis$group=='S', 'Perturbed')
+  
+  nvis$group = replace(nvis$group, nvis$group=='M', 'TFs')
+  nvis$group = replace(nvis$group, nvis$group=='P', 'Perturbed')
   nvis$group = replace(nvis$group, nvis$group=='', 'Protein')
   
   nvis$color = sapply(nvis$color, function(x,b,rb){rb[as.integer(as.character(b$bin[b$value==as.integer(x)]))]}, binned, rb_scale)

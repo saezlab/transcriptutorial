@@ -201,9 +201,10 @@ carnival_result = runCARNIVAL( inputObj= iniciators,
                                measObj = tfList$t, 
                                netObj = sif, 
                                weightObj = progenylist$score, 
-                               solverPath = "/Applications/CPLEX_Studio129/cplex/bin/x86-64_osx/cplex", 
+                               solverPath = "/Applications/CPLEX_Studio128/cplex/bin/x86-64_osx/cplex",
+                               #solverPath = "/Applications/CPLEX_Studio129/cplex/bin/x86-64_osx/cplex", 
                                solver = "cplex",
-                               timelimit=7200,
+                               timelimit=60,
                                mipGAP=0,
                                poolrelGAP=0 )
 ```
@@ -223,6 +224,7 @@ We can now visualise the network...
 carnival_result$weightedSIF <- data.frame(carnival_result$weightedSIF, stringsAsFactors = F)
 carnival_result$weightedSIF$Sign <- as.numeric(carnival_result$weightedSIF$Sign)
 carnival_result$weightedSIF$Weight <- as.numeric(carnival_result$weightedSIF$Weight)
+carnival_result$weightedSIF = carnival_result$weightedSIF[carnival_result$weightedSIF$Weight !=0,]
 
 carnival_result$nodesAttributes <- data.frame(carnival_result$nodesAttributes, stringsAsFactors = F)
 carnival_result$nodesAttributes$ZeroAct <- as.numeric(carnival_result$nodesAttributes$ZeroAct)
