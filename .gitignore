@@ -2,3 +2,4 @@
 *.counts.txt
 *.DS_Store
 *icloud
+.Rproj.user
