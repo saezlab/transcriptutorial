@@ -1,5 +1,9 @@
 library(CARNIVAL)
 library(readr)
+library(dplyr)
+library(visNetwork)
+
+source("scripts/carnival_visNet.R")
 
 TF_differential_activities <- as.data.frame(
   read_csv("data/TF_differential_activities.csv"))
@@ -35,6 +39,11 @@ SIF_network <- SIF_network[SIF_network$Weight != 0,]
 
 ATTribute_network <- data.frame(carnival_result$nodesAttributes, stringsAsFactors = F)
 ATTribute_network <- ATTribute_network[ATTribute_network$ZeroAct != 100,]
+
+carnival_visNet(evis = carnival_result$weightedSIF,
+                         nvis = carnival_result$nodesAttributes)
+
+
 
 write_csv(SIF_network, file = "results/SIF_network.csv")
 write_csv(ATTribute_network, file = "results/ATTribute_network.csv")
