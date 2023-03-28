@@ -29,8 +29,7 @@
 #'   DownAct = c(0,0,100,100,0,100),
 #'   AvgAct = c(100,100,-100,-100,100,-100)
 #' )
-carnival_visNet(network_data, node_attribute)
-
+#' carnival_visNet(network_data, node_attribute)
 carnival_visNet <- function(evis, nvis, mapIDs=NULL){
   
   writeLines('Graphical representation of sample')
