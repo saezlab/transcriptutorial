@@ -7,7 +7,9 @@ For details instructions about decoupleR for RNA data processing and TF activity
 
 Please instal the latest version of carnival with:
 
+``` r
 devtools::install_github("saezlab/CARNIVAL")
+```
 
 In script/run_carnival.R:
 
